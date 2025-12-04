@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Jimpitan MLD - Sync Manual</title>
+    <title>Sistem Jimpitan MLD - Lengkap dengan Pemasukan</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -89,7 +89,7 @@
             border-radius: 10px;
         }
 
-        /* Sync Modal */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -252,6 +252,36 @@
             resize: vertical;
         }
 
+        /* Pemasukan Form */
+        .pemasukan-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        /* Filter Laporan */
+        .filter-container {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        /* Gender Select */
         .gender-select {
             display: flex;
             gap: 15px;
@@ -411,59 +441,41 @@
             color: #ff8f00;
         }
 
-        /* Petugas List */
-        .petugas-list {
+        /* Stats Grid */
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
-            margin-top: 15px;
+            margin-bottom: 20px;
         }
 
-        .petugas-card {
-            background: white;
+        .stat-card {
+            background: #f9f9f9;
+            padding: 20px;
             border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-            border-left: 4px solid var(--male-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            text-align: center;
         }
 
-        .petugas-card.female {
-            border-left-color: var(--female-color);
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 10px 0;
         }
 
-        .petugas-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: white;
+        .stat-value.male {
+            color: var(--male-color);
         }
 
-        .petugas-avatar.male {
-            background-color: var(--male-color);
+        .stat-value.female {
+            color: var(--female-color);
         }
 
-        .petugas-avatar.female {
-            background-color: var(--female-color);
+        .stat-value.success {
+            color: var(--success);
         }
 
-        .petugas-info {
-            flex: 1;
-        }
-
-        .petugas-name {
-            font-weight: 600;
-            margin-bottom: 3px;
-        }
-
-        .petugas-gender {
-            font-size: 0.85rem;
+        .stat-label {
+            font-size: 0.9rem;
             color: #666;
         }
 
@@ -588,6 +600,14 @@
             .backup-options {
                 grid-template-columns: 1fr;
             }
+            
+            .pemasukan-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -628,16 +648,11 @@
                     <button class="btn btn-primary" onclick="exportJadwal()">
                         <i class="fas fa-calendar"></i> Export Jadwal
                     </button>
+                    <button class="btn btn-primary" onclick="exportPemasukan()">
+                        <i class="fas fa-money-bill"></i> Export Pemasukan
+                    </button>
                     <button class="btn btn-success" onclick="exportAllData()">
                         <i class="fas fa-database"></i> Export Semua
-                    </button>
-                </div>
-                
-                <div id="export-data-display" style="margin-top: 20px; display: none;">
-                    <h5>Data JSON:</h5>
-                    <textarea id="export-data-text" class="form-control" rows="6" readonly></textarea>
-                    <button class="btn btn-secondary" onclick="copyToClipboard()" style="margin-top: 10px;">
-                        <i class="fas fa-copy"></i> Copy ke Clipboard
                     </button>
                 </div>
             </div>
@@ -651,18 +666,14 @@
                     <select id="import-type" class="form-control">
                         <option value="petugas">Data Petugas Saja</option>
                         <option value="jadwal">Data Jadwal Saja</option>
-                        <option value="all">Semua Data (Petugas + Jadwal)</option>
+                        <option value="pemasukan">Data Pemasukan Saja</option>
+                        <option value="all">Semua Data</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
                     <label>Upload File JSON:</label>
                     <input type="file" id="import-file" class="form-control" accept=".json">
-                </div>
-                
-                <div class="form-group">
-                    <label>Atau Paste JSON Manual:</label>
-                    <textarea id="import-data-text" class="form-control" rows="6" placeholder="Paste data JSON di sini..."></textarea>
                 </div>
                 
                 <div class="btn-group" style="display: flex; gap: 10px;">
@@ -685,14 +696,14 @@
                     <img src="logo_mld.png" alt="Logo MLD" class="logo-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/70x70/1976D2/FFFFFF?text=MLD';">
                     <div class="logo-text">
                         <h1>Sistem Jimpitan MLD</h1>
-                        <p>Sistem Sinkronisasi Multi-Perangkat</p>
+                        <p>Pemuda 26</p>
                     </div>
                 </div>
                 <div class="sync-status">
                     <i class="fas fa-database"></i>
                     <div>
                         <div style="font-weight: 600;">Data Local</div>
-                        <div style="font-size: 0.9rem;">Gunakan Export/Import untuk sinkronisasi</div>
+                        <div style="font-size: 0.9rem;">Iuran: Rp 500/hari</div>
                     </div>
                 </div>
             </div>
@@ -711,6 +722,8 @@
                         <div class="tab" data-tab="tambah-petugas">Tambah Petugas</div>
                         <div class="tab" data-tab="daftar-petugas">Daftar Petugas</div>
                         <div class="tab" data-tab="atur-jadwal">Atur Jadwal</div>
+                        <div class="tab" data-tab="pemasukan">Input Pemasukan</div>
+                        <div class="tab" data-tab="laporan">Laporan Keuangan</div>
                         <div class="tab" data-tab="backup">Backup & Sync</div>
                     </div>
 
@@ -723,33 +736,30 @@
                             </button>
                         </div>
                         
-                        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                            <div class="stat-card" style="background: #f9f9f9; padding: 20px; border-radius: 10px; text-align: center;">
+                        <div class="stats-grid">
+                            <div class="stat-card">
                                 <div class="stat-label">Total Petugas</div>
                                 <div class="stat-value" id="dash-total-petugas">0</div>
                             </div>
-                            <div class="stat-card" style="background: #f9f9f9; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div class="stat-card">
                                 <div class="stat-label">Petugas Laki-laki</div>
                                 <div class="stat-value male" id="dash-petugas-cowok">0</div>
                             </div>
-                            <div class="stat-card" style="background: #f9f9f9; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div class="stat-card">
                                 <div class="stat-label">Petugas Perempuan</div>
                                 <div class="stat-value female" id="dash-petugas-cewek">0</div>
                             </div>
-                            <div class="stat-card" style="background: #f9f9f9; padding: 20px; border-radius: 10px; text-align: center;">
-                                <div class="stat-label">Jadwal Tersimpan</div>
-                                <div class="stat-value success" id="dash-jadwal-count">0</div>
+                            <div class="stat-card">
+                                <div class="stat-label">Total Pemasukan</div>
+                                <div class="stat-value success" id="dash-total-pemasukan">Rp 0</div>
                             </div>
                         </div>
                         
-                        <div class="card">
-                            <h3 class="card-title"><i class="fas fa-info-circle"></i> Panduan Sinkronisasi</h3>
-                            <ol style="padding-left: 20px; margin-top: 10px;">
-                                <li><strong>Di Perangkat A:</strong> Buka tab "Backup & Sync" → Export semua data</li>
-                                <li><strong>Transfer file</strong> ke Perangkat B (WhatsApp, email, flashdisk)</li>
-                                <li><strong>Di Perangkat B:</strong> Buka tab "Backup & Sync" → Import data</li>
-                                <li><strong>Data sekarang sama</strong> di semua perangkat!</li>
-                            </ol>
+                        <div class="card" style="margin-top: 20px;">
+                            <h3 class="card-title"><i class="fas fa-chart-line"></i> Pemasukan 7 Hari Terakhir</h3>
+                            <div id="chart-container" style="height: 200px; margin-top: 15px; display: flex; align-items: flex-end; gap: 10px; padding: 20px; border: 1px solid var(--gray); border-radius: 8px;">
+                                <!-- Chart akan diisi oleh JavaScript -->
+                            </div>
                         </div>
                     </div>
 
@@ -840,6 +850,9 @@
                                 <button class="btn btn-success" id="simpan-jadwal">
                                     <i class="fas fa-save"></i> Simpan Jadwal
                                 </button>
+                                <button class="btn btn-primary" onclick="exportJadwalCSV()">
+                                    <i class="fas fa-file-csv"></i> Export CSV
+                                </button>
                             </div>
                         </div>
                         
@@ -852,87 +865,261 @@
                             <ul style="padding-left: 20px; margin-top: 10px;">
                                 <li><strong>Senin, Rabu, Kamis, Jumat, Sabtu, Minggu:</strong> Pilih 3 petugas laki-laki</li>
                                 <li><strong>Selasa:</strong> Pilih 7 petugas perempuan (hanya perempuan)</li>
-                                <li>Iuran per rumah: <strong>Rp 500 per hari</strong></li>
-                                <li>Jangan lupa klik <strong>Simpan Jadwal</strong></li>
+                                <li>Iuran per KK: <strong>Rp 500 per hari</strong></li>
                             </ul>
                         </div>
                     </div>
 
-                    <!-- Tab 5: Backup & Sync -->
+                    <!-- Tab 5: Input Pemasukan -->
+                    <div id="pemasukan" class="tab-content">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-money-check-alt"></i> Input Pemasukan Harian</h2>
+                        </div>
+                        
+                        <form id="form-pemasukan">
+                            <div class="pemasukan-form">
+                                <div class="form-group">
+                                    <label for="tanggal-pemasukan">Tanggal</label>
+                                    <input type="date" id="tanggal-pemasukan" class="form-control" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="hari-pemasukan">Hari</label>
+                                    <select id="hari-pemasukan" class="form-control" required>
+                                        <option value="">Pilih Hari</option>
+                                        <option value="Senin">Senin</option>
+                                        <option value="Selasa">Selasa</option>
+                                        <option value="Rabu">Rabu</option>
+                                        <option value="Kamis">Kamis</option>
+                                        <option value="Jumat">Jumat</option>
+                                        <option value="Sabtu">Sabtu</option>
+                                        <option value="Minggu">Minggu</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="jumlah-rumah">Jumlah KK</label>
+                                    <input type="number" id="jumlah-rumah" class="form-control" min="1" value="37" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="total-pemasukan">Total Pemasukan (Otomatis)</label>
+                                    <div class="form-row">
+                                        <input type="text" id="total-pemasukan" class="form-control" value="Rp 18.500" readonly style="flex: 1;">
+                                        <span class="btn btn-secondary" onclick="hitungPemasukan()">
+                                            <i class="fas fa-calculator"></i> Hitung
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="keterangan-pemasukan">Keterangan (Opsional)</label>
+                                <textarea id="keterangan-pemasukan" class="form-control" rows="3" placeholder="Tambahkan keterangan jika perlu"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Simpan Pemasukan
+                            </button>
+                            <button type="reset" class="btn btn-secondary">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                        </form>
+                        
+                        <div class="table-responsive" style="margin-top: 30px;">
+                            <h3 class="card-title" style="margin-bottom: 15px;"><i class="fas fa-history"></i> Pemasukan Terakhir</h3>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Hari</th>
+                                        <th>Jumlah KK</th>
+                                        <th>Total Pemasukan</th>
+                                        <th>Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="riwayat-pemasukan-body">
+                                    <!-- Data akan diisi oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 6: Laporan Keuangan -->
+                    <div id="laporan" class="tab-content">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-chart-bar"></i> Laporan Keuangan</h2>
+                            <div>
+                                <button class="btn btn-success" onclick="exportLaporanCSV()">
+                                    <i class="fas fa-file-csv"></i> Export CSV
+                                </button>
+                                <button class="btn btn-primary" onclick="printLaporan()">
+                                    <i class="fas fa-print"></i> Print
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-container">
+                            <h3 style="margin-bottom: 15px;">Filter Laporan</h3>
+                            <div class="filter-row">
+                                <div class="form-group" style="flex: 1;">
+                                    <label for="filter-bulan">Bulan</label>
+                                    <select id="filter-bulan" class="form-control">
+                                        <option value="semua">Semua Bulan</option>
+                                        <option value="1">Januari</option>
+                                        <option value="2">Februari</option>
+                                        <option value="3">Maret</option>
+                                        <option value="4">April</option>
+                                        <option value="5">Mei</option>
+                                        <option value="6">Juni</option>
+                                        <option value="7">Juli</option>
+                                        <option value="8">Agustus</option>
+                                        <option value="9">September</option>
+                                        <option value="10">Oktober</option>
+                                        <option value="11">November</option>
+                                        <option value="12">Desember</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group" style="flex: 1;">
+                                    <label for="filter-tahun">Tahun</label>
+                                    <select id="filter-tahun" class="form-control">
+                                        <!-- Tahun akan diisi oleh JavaScript -->
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group" style="flex: 1;">
+                                    <label for="filter-hari">Hari</label>
+                                    <select id="filter-hari" class="form-control">
+                                        <option value="semua">Semua Hari</option>
+                                        <option value="Senin">Senin</option>
+                                        <option value="Selasa">Selasa</option>
+                                        <option value="Rabu">Rabu</option>
+                                        <option value="Kamis">Kamis</option>
+                                        <option value="Jumat">Jumat</option>
+                                        <option value="Sabtu">Sabtu</option>
+                                        <option value="Minggu">Minggu</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <button class="btn btn-primary" id="filter-apply">
+                                        <i class="fas fa-filter"></i> Terapkan Filter
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-label">Total Pemasukan</div>
+                                <div class="stat-value success" id="laporan-total">Rp 0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Rata-rata Harian</div>
+                                <div class="stat-value" id="laporan-rata">Rp 0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Jumlah Transaksi</div>
+                                <div class="stat-value" id="laporan-jumlah">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Rumah Tercover</div>
+                                <div class="stat-value" id="laporan-rumah">0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive" style="margin-top: 20px;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Tanggal</th>
+                                        <th>Hari</th>
+                                        <th>Jumlah KK</th>
+                                        <th>Iuran per KK</th>
+                                        <th>Total Pemasukan</th>
+                                        <th>Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="laporan-body">
+                                    <!-- Data akan diisi oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 7: Backup & Sync -->
                     <div id="backup" class="tab-content">
                         <div class="card-header">
-                            <h2 class="card-title"><i class="fas fa-database"></i> Backup & Sinkronisasi Data</h2>
+                            <h2 class="card-title"><i class="fas fa-database"></i> Backup & Sinkronisasi</h2>
                             <button class="btn btn-primary" onclick="openSyncModal()">
                                 <i class="fas fa-sync-alt"></i> Sinkronisasi
                             </button>
                         </div>
                         
                         <div class="card">
-                            <h3 class="card-title"><i class="fas fa-download"></i> Backup Data</h3>
-                            <p>Export data untuk disimpan atau dibuka di perangkat lain:</p>
+                            <h3 class="card-title"><i class="fas fa-download"></i> Export Data ke CSV</h3>
+                            <p>Export data dalam format CSV untuk analisis di Excel:</p>
                             
                             <div class="backup-options">
-                                <div class="backup-card" onclick="exportPetugas()">
+                                <div class="backup-card" onclick="exportPetugasCSV()">
                                     <div class="backup-icon">
                                         <i class="fas fa-users"></i>
                                     </div>
-                                    <h4>Export Petugas</h4>
-                                    <p>Download data petugas dalam format JSON</p>
+                                    <h4>Petugas CSV</h4>
+                                    <p>Export data petugas ke CSV</p>
                                 </div>
                                 
-                                <div class="backup-card" onclick="exportJadwal()">
+                                <div class="backup-card" onclick="exportJadwalCSV()">
                                     <div class="backup-icon">
                                         <i class="fas fa-calendar-alt"></i>
                                     </div>
-                                    <h4>Export Jadwal</h4>
-                                    <p>Download data jadwal dalam format JSON</p>
+                                    <h4>Jadwal CSV</h4>
+                                    <p>Export data jadwal ke CSV</p>
                                 </div>
                                 
-                                <div class="backup-card" onclick="exportAllData()">
+                                <div class="backup-card" onclick="exportPemasukanCSV()">
                                     <div class="backup-icon">
-                                        <i class="fas fa-database"></i>
+                                        <i class="fas fa-money-bill"></i>
                                     </div>
-                                    <h4>Export Semua</h4>
-                                    <p>Download semua data (petugas + jadwal)</p>
+                                    <h4>Pemasukan CSV</h4>
+                                    <p>Export data pemasukan ke CSV</p>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="card" style="margin-top: 20px;">
-                            <h3 class="card-title"><i class="fas fa-upload"></i> Restore Data</h3>
-                            <p>Import data dari file backup:</p>
+                            <h3 class="card-title"><i class="fas fa-file-export"></i> Export ke JSON</h3>
+                            <p>Export data dalam format JSON untuk backup atau sinkronisasi:</p>
                             
-                            <div class="form-group">
-                                <label for="restore-file">Pilih File Backup (.json)</label>
-                                <input type="file" id="restore-file" class="form-control" accept=".json" onchange="handleFileImport()">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Tipe Data yang akan Diimport:</label>
-                                <select id="restore-type" class="form-control">
-                                    <option value="auto">Deteksi Otomatis</option>
-                                    <option value="petugas">Data Petugas Saja</option>
-                                    <option value="jadwal">Data Jadwal Saja</option>
-                                    <option value="all">Semua Data</option>
-                                </select>
-                            </div>
-                            
-                            <button class="btn btn-success" onclick="restoreFromFile()">
-                                <i class="fas fa-file-import"></i> Import dari File
-                            </button>
-                            
-                            <div style="margin-top: 20px; padding: 15px; background-color: #fff3e0; border-radius: 8px;">
-                                <p style="font-weight: 600;"><i class="fas fa-exclamation-triangle"></i> Peringatan</p>
-                                <p style="margin-top: 5px; font-size: 0.9rem;">Import data akan <strong>mengganti data yang ada</strong>. Pastikan Anda sudah melakukan backup sebelumnya.</p>
+                            <div class="btn-group" style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button class="btn btn-primary" onclick="exportPetugasJSON()">
+                                    <i class="fas fa-users"></i> Petugas JSON
+                                </button>
+                                <button class="btn btn-primary" onclick="exportJadwalJSON()">
+                                    <i class="fas fa-calendar"></i> Jadwal JSON
+                                </button>
+                                <button class="btn btn-primary" onclick="exportPemasukanJSON()">
+                                    <i class="fas fa-money-bill"></i> Pemasukan JSON
+                                </button>
+                                <button class="btn btn-success" onclick="exportAllJSON()">
+                                    <i class="fas fa-database"></i> Semua Data JSON
+                                </button>
                             </div>
                         </div>
                         
                         <div class="card" style="margin-top: 20px;">
-                            <h3 class="card-title"><i class="fas fa-history"></i> Riwayat Backup</h3>
-                            <div id="backup-history">
-                                <!-- Riwayat backup akan ditampilkan di sini -->
-                                <p style="text-align: center; color: #999; padding: 20px;">Belum ada riwayat backup</p>
+                            <h3 class="card-title"><i class="fas fa-file-import"></i> Import Data</h3>
+                            <p>Import data dari file JSON:</p>
+                            
+                            <div class="form-group" style="margin-top: 15px;">
+                                <input type="file" id="restore-file" class="form-control" accept=".json">
                             </div>
+                            
+                            <button class="btn btn-success" onclick="restoreFromFile()" style="margin-top: 10px;">
+                                <i class="fas fa-upload"></i> Import Data dari File
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -942,18 +1129,30 @@
             <div class="right-column">
                 <!-- Statistik Cepat -->
                 <div class="card">
-                    <h2 class="card-title"><i class="fas fa-chart-pie"></i> Statistik Cepat</h2>
+                    <h2 class="card-title"><i class="fas fa-chart-pie"></i> Statistik Hari Ini</h2>
                     
-                    <div style="padding: 15px; background-color: #f9f9f9; border-radius: 8px; margin-top: 15px;">
-                        <p><strong>Data Tersimpan:</strong></p>
-                        <p style="margin-top: 10px;">Petugas: <span id="stat-petugas-count">0</span></p>
-                        <p>Jadwal: <span id="stat-jadwal-count">0 hari</span></p>
-                        <p>Update Terakhir: <span id="stat-last-update">-</span></p>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Total KK</div>
+                            <div class="stat-value" id="stat-total-rumah">37</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Target Pemasukan</div>
+                            <div class="stat-value success" id="stat-target-pemasukan">Rp 18.500</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Pemasukan Hari Ini</div>
+                            <div class="stat-value success" id="stat-pemasukan-hari-ini">Rp 0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Pemasukan Bulan Ini</div>
+                            <div class="stat-value" id="stat-pemasukan-bulan-ini">Rp 0</div>
+                        </div>
                     </div>
                     
-                    <div style="margin-top: 20px; padding: 15px; background-color: #e3f2fd; border-radius: 8px;">
-                        <p style="font-weight: 600; margin-bottom: 8px;"><i class="fas fa-mobile-alt"></i> Multi-Perangkat</p>
-                        <p style="margin-top: 8px; font-size: 0.9rem;">Gunakan fitur Export/Import untuk sinkronisasi data antar perangkat.</p>
+                    <div style="margin-top: 20px; padding: 15px; background-color: #f0f7ff; border-radius: 8px;">
+                        <p style="font-weight: 600; margin-bottom: 8px;"><i class="fas fa-calendar-day"></i> <span id="info-hari-ini">-</span></p>
+                        <p style="margin-top: 8px; font-size: 0.9rem;">Iuran per kk: <strong>Rp 500</strong></p>
                     </div>
                 </div>
 
@@ -963,6 +1162,15 @@
                     <div id="petugas-terbaru-list" style="margin-top: 15px;">
                         <!-- Data akan diisi oleh JavaScript -->
                         <p style="text-align: center; color: #999; padding: 20px;">Belum ada petugas</p>
+                    </div>
+                </div>
+
+                <!-- Pemasukan Terbaru -->
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-history"></i> Pemasukan Terbaru</h2>
+                    <div id="pemasukan-terbaru-list" style="margin-top: 15px;">
+                        <!-- Data akan diisi oleh JavaScript -->
+                        <p style="text-align: center; color: #999; padding: 20px;">Belum ada pemasukan</p>
                     </div>
                 </div>
 
@@ -977,27 +1185,6 @@
                             <i class="fas fa-sync-alt"></i> Sinkronisasi Data
                         </button>
                     </div>
-                    
-                    <div style="margin-top: 20px; padding: 12px; background-color: #e8f5e9; border-radius: 8px;">
-                        <p style="font-weight: 600;"><i class="fas fa-lightbulb"></i> Tips</p>
-                        <p style="margin-top: 5px; font-size: 0.9rem;">Lakukan backup secara berkala untuk keamanan data.</p>
-                    </div>
-                </div>
-
-                <!-- Info Penting -->
-                <div class="card">
-                    <h2 class="card-title"><i class="fas fa-exclamation-circle"></i> Info Penting</h2>
-                    <div style="margin-top: 15px;">
-                        <div style="padding: 12px; background-color: #fff3e0; border-radius: 8px; margin-bottom: 10px;">
-                            <p style="font-weight: 600;"><i class="fas fa-sync-alt"></i> Sinkronisasi</p>
-                            <p style="margin-top: 5px; font-size: 0.9rem;">Data disimpan di browser. Gunakan Export/Import untuk sinkronisasi antar perangkat.</p>
-                        </div>
-                        
-                        <div style="padding: 12px; background-color: #fce4ec; border-radius: 8px;">
-                            <p style="font-weight: 600;"><i class="fas fa-female"></i> Jadwal Selasa</p>
-                            <p style="margin-top: 5px; font-size: 0.9rem;">Hari Selasa khusus 7 petugas perempuan saja.</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1006,9 +1193,9 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>&copy; 2023 Sistem Jimpitan MLD - Export/Import System</p>
+            <p>&copy; 2025 Sistem Jimpitan MLD - Pemuda 26</p>
             <p style="margin-top: 10px; font-size: 0.9rem;">
-                <i class="fas fa-info-circle"></i> Data tersimpan di browser local storage
+                <i class="fas fa-file-csv"></i> v1.1
             </p>
         </div>
     </footer>
@@ -1016,11 +1203,11 @@
     <script>
         // Data storage
         let petugasData = JSON.parse(localStorage.getItem('petugas_jimpitan')) || [];
+        let pemasukanData = JSON.parse(localStorage.getItem('pemasukan_jimpitan')) || [];
         let jadwalData = JSON.parse(localStorage.getItem('jadwal_petugas')) || {};
-        let backupHistory = JSON.parse(localStorage.getItem('backup_history')) || [];
         
         // Hari dalam seminggu
-        const hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+        const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
         
         // Inisialisasi saat halaman dimuat
         document.addEventListener('DOMContentLoaded', function() {
@@ -1028,24 +1215,43 @@
             initTabs();
             initFilterButtons();
             initJadwalSystem();
+            initPemasukanForm();
+            initLaporan();
             setCurrentDate();
             renderDaftarPetugas();
             renderJadwalManual();
+            renderRiwayatPemasukan();
             updateStatistik();
             renderPetugasTerbaru();
-            renderBackupHistory();
+            renderPemasukanTerbaru();
+            updateDashboard();
+            updateChart();
+            
+            // Set default date untuk input pemasukan
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('tanggal-pemasukan').value = today;
+            
+            // Set hari otomatis berdasarkan tanggal
+            document.getElementById('tanggal-pemasukan').addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                const dayIndex = selectedDate.getDay();
+                document.getElementById('hari-pemasukan').value = hari[dayIndex];
+            });
+            
+            // Set hari berdasarkan tanggal saat ini
+            const currentDayIndex = new Date().getDay();
+            document.getElementById('hari-pemasukan').value = hari[currentDayIndex];
         });
         
         // Set tanggal hari ini
         function setCurrentDate() {
             const now = new Date();
-            document.getElementById('stat-last-update').textContent = now.toLocaleDateString('id-ID', { 
-                day: 'numeric', 
-                month: 'short', 
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const hariIni = hari[now.getDay()];
+            document.getElementById('info-hari-ini').textContent = now.toLocaleDateString('id-ID', options);
+            
+            // Update kebutuhan hari ini
+            const kebutuhan = (hariIni === 'Selasa') ? '7 Petugas Perempuan' : '3 Petugas Laki-laki';
         }
         
         // Inisialisasi form
@@ -1084,8 +1290,7 @@
                     jenisKelamin: jenisKelamin,
                     alamat: alamat,
                     telepon: telepon,
-                    tanggalDaftar: new Date().toISOString().split('T')[0],
-                    createdAt: new Date().toISOString()
+                    tanggalDaftar: new Date().toISOString().split('T')[0]
                 };
                 
                 petugasData.push(petugasBaru);
@@ -1101,9 +1306,8 @@
                 renderJadwalManual();
                 updateStatistik();
                 renderPetugasTerbaru();
-                setCurrentDate();
+                updateDashboard();
                 
-                // Tampilkan konfirmasi
                 alert(`Petugas "${nama}" berhasil disimpan!`);
             });
         }
@@ -1125,6 +1329,11 @@
                     // Tampilkan konten yang sesuai
                     const tabId = this.getAttribute('data-tab');
                     document.getElementById(tabId).classList.add('active');
+                    
+                    // Jika tab laporan, update laporan
+                    if (tabId === 'laporan') {
+                        renderLaporan();
+                    }
                 });
             });
         }
@@ -1195,7 +1404,7 @@
                 renderJadwalManual();
                 updateStatistik();
                 renderPetugasTerbaru();
-                setCurrentDate();
+                updateDashboard();
                 alert('Petugas berhasil dihapus!');
             }
         }
@@ -1205,17 +1414,40 @@
             const total = petugasData.length;
             const cowok = petugasData.filter(p => p.jenisKelamin === 'Laki-laki').length;
             const cewek = petugasData.filter(p => p.jenisKelamin === 'Perempuan').length;
-            const jadwalCount = Object.keys(jadwalData).length;
-            
-            // Update dashboard
-            document.getElementById('dash-total-petugas').textContent = total;
-            document.getElementById('dash-petugas-cowok').textContent = cowok;
-            document.getElementById('dash-petugas-cewek').textContent = cewek;
-            document.getElementById('dash-jadwal-count').textContent = jadwalCount;
             
             // Update statistik cepat
-            document.getElementById('stat-petugas-count').textContent = total;
-            document.getElementById('stat-jadwal-count').textContent = `${jadwalCount} hari`;
+            document.getElementById('stat-pemasukan-hari-ini').textContent = formatRupiah(getPemasukanHariIni());
+            document.getElementById('stat-pemasukan-bulan-ini').textContent = formatRupiah(getPemasukanBulanIni());
+            
+            // Update target pemasukan
+            document.getElementById('stat-target-pemasukan').textContent = formatRupiah(37 * 500);
+        }
+        
+        // Format ke Rupiah
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+        }
+        
+        // Get pemasukan hari ini
+        function getPemasukanHariIni() {
+            const today = new Date().toISOString().split('T')[0];
+            return pemasukanData
+                .filter(p => p.tanggal === today)
+                .reduce((sum, p) => sum + p.total, 0);
+        }
+        
+        // Get pemasukan bulan ini
+        function getPemasukanBulanIni() {
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentYear = now.getFullYear();
+            
+            return pemasukanData
+                .filter(p => {
+                    const date = new Date(p.tanggal);
+                    return date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear;
+                })
+                .reduce((sum, p) => sum + p.total, 0);
         }
         
         // Render petugas terbaru
@@ -1229,7 +1461,7 @@
             
             // Ambil 3 petugas terbaru
             const petugasTerbaru = [...petugasData]
-                .sort((a, b) => new Date(b.createdAt || b.tanggalDaftar) - new Date(a.createdAt || a.tanggalDaftar))
+                .sort((a, b) => new Date(b.tanggalDaftar) - new Date(a.tanggalDaftar))
                 .slice(0, 3);
             
             container.innerHTML = '';
@@ -1361,17 +1593,397 @@
             // Simpan ke localStorage
             localStorage.setItem('jadwal_petugas', JSON.stringify(jadwalData));
             
-            // Update statistik
-            updateStatistik();
-            setCurrentDate();
-            
             alert('Jadwal berhasil disimpan!');
+        }
+        
+        // Export jadwal ke CSV
+        function exportJadwalCSV() {
+            if (Object.keys(jadwalData).length === 0) {
+                alert('Belum ada jadwal untuk diexport!');
+                return;
+            }
+            
+            let csvContent = "Hari,Kebutuhan Petugas,Nama,Jenis Kelamin,Alamat\n";
+            
+            hari.forEach(hariNama => {
+                if (jadwalData[hariNama] && jadwalData[hariNama].length > 0) {
+                    jadwalData[hariNama].forEach(petugas => {
+                        csvContent += `${hariNama},${hariNama === 'Selasa' ? '7 Perempuan' : '3 Laki-laki'},${petugas.nama},${petugas.jenisKelamin},${petugas.alamat}\n`;
+                    });
+                }
+            });
+            
+            downloadCSV(csvContent, `jadwal_jimpitan_${getCurrentDateString()}.csv`);
+        }
+        
+        // Inisialisasi form pemasukan
+        function initPemasukanForm() {
+            const form = document.getElementById('form-pemasukan');
+            
+            // Hitung pemasukan otomatis
+            document.getElementById('jumlah-rumah').addEventListener('input', hitungPemasukan);
+            
+            // Handle submit form
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const tanggal = document.getElementById('tanggal-pemasukan').value;
+                const hari = document.getElementById('hari-pemasukan').value;
+                const jumlahRumah = parseInt(document.getElementById('jumlah-rumah').value);
+                const total = parseInt(document.getElementById('total-pemasukan').value.replace(/\D/g, ''));
+                const keterangan = document.getElementById('keterangan-pemasukan').value;
+                
+                if (!tanggal || !hari || !jumlahRumah || !total) {
+                    alert('Data tidak lengkap!');
+                    return;
+                }
+                
+                // Tambahkan pemasukan baru
+                const pemasukanBaru = {
+                    id: Date.now(),
+                    tanggal: tanggal,
+                    hari: hari,
+                    jumlahRumah: jumlahRumah,
+                    iuranPerRumah: 500,
+                    total: total,
+                    keterangan: keterangan || '-',
+                    createdAt: new Date().toISOString()
+                };
+                
+                pemasukanData.push(pemasukanBaru);
+                localStorage.setItem('pemasukan_jimpitan', JSON.stringify(pemasukanData));
+                
+                // Reset form
+                form.reset();
+                
+                // Set default values
+                document.getElementById('tanggal-pemasukan').value = new Date().toISOString().split('T')[0];
+                const currentDayIndex = new Date().getDay();
+                document.getElementById('hari-pemasukan').value = hari[currentDayIndex];
+                document.getElementById('jumlah-rumah').value = 37;
+                hitungPemasukan();
+                
+                // Update tampilan
+                renderRiwayatPemasukan();
+                renderPemasukanTerbaru();
+                updateStatistik();
+                updateDashboard();
+                updateChart();
+                
+                alert(`Pemasukan sebesar ${formatRupiah(total)} berhasil disimpan!`);
+            });
+        }
+        
+        // Hitung pemasukan
+        function hitungPemasukan() {
+            const jumlahRumah = parseInt(document.getElementById('jumlah-rumah').value) || 0;
+            const total = jumlahRumah * 500;
+            document.getElementById('total-pemasukan').value = formatRupiah(total);
+        }
+        
+        // Render riwayat pemasukan
+        function renderRiwayatPemasukan() {
+            const tbody = document.getElementById('riwayat-pemasukan-body');
+            tbody.innerHTML = '';
+            
+            if (pemasukanData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 30px;">
+                            <i class="fas fa-file-invoice-dollar" style="font-size: 2rem; color: #ccc; margin-bottom: 10px; display: block;"></i>
+                            <p>Belum ada data pemasukan</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Ambil 5 pemasukan terbaru
+            const riwayatTerbaru = [...pemasukanData]
+                .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal))
+                .slice(0, 5);
+            
+            riwayatTerbaru.forEach(p => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formatTanggal(p.tanggal)}</td>
+                    <td>${p.hari}</td>
+                    <td>${p.jumlahRumah} rumah</td>
+                    <td>${formatRupiah(p.total)}</td>
+                    <td>${p.keterangan}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Render pemasukan terbaru
+        function renderPemasukanTerbaru() {
+            const container = document.getElementById('pemasukan-terbaru-list');
+            
+            if (pemasukanData.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">Belum ada pemasukan</p>`;
+                return;
+            }
+            
+            // Ambil 3 pemasukan terbaru
+            const pemasukanTerbaru = [...pemasukanData]
+                .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal))
+                .slice(0, 3);
+            
+            container.innerHTML = '';
+            pemasukanTerbaru.forEach(p => {
+                const item = document.createElement('div');
+                item.style.padding = '12px';
+                item.style.borderBottom = '1px solid #eee';
+                item.style.display = 'flex';
+                item.style.justifyContent = 'space-between';
+                item.style.alignItems = 'center';
+                
+                item.innerHTML = `
+                    <div>
+                        <div style="font-weight: 600; color: var(--primary);">${p.hari}</div>
+                        <div style="font-size: 0.85rem; color: #666;">${formatTanggal(p.tanggal)}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 700; color: var(--success);">${formatRupiah(p.total)}</div>
+                        <div style="font-size: 0.85rem; color: #666;">${p.jumlahRumah} rumah</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        // Format tanggal pendek
+        function formatTanggal(tanggalString) {
+            const tanggal = new Date(tanggalString);
+            return tanggal.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+        
+        // Inisialisasi laporan
+        function initLaporan() {
+            // Isi pilihan tahun
+            const tahunSelect = document.getElementById('filter-tahun');
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear - 2; year <= currentYear + 2; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (year === currentYear) option.selected = true;
+                tahunSelect.appendChild(option);
+            }
+            
+            // Event listener untuk filter
+            document.getElementById('filter-apply').addEventListener('click', renderLaporan);
+        }
+        
+        // Render laporan
+        function renderLaporan() {
+            const bulan = document.getElementById('filter-bulan').value;
+            const tahun = document.getElementById('filter-tahun').value;
+            const hari = document.getElementById('filter-hari').value;
+            
+            const tbody = document.getElementById('laporan-body');
+            tbody.innerHTML = '';
+            
+            // Filter data pemasukan
+            let filteredPemasukan = pemasukanData;
+            
+            if (bulan !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => {
+                    const date = new Date(p.tanggal);
+                    return (date.getMonth() + 1) == bulan;
+                });
+            }
+            
+            if (tahun !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => {
+                    const date = new Date(p.tanggal);
+                    return date.getFullYear() == tahun;
+                });
+            }
+            
+            if (hari !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => p.hari === hari);
+            }
+            
+            // Urutkan berdasarkan tanggal terbaru
+            filteredPemasukan.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+            
+            if (filteredPemasukan.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px;">
+                            <i class="fas fa-chart-bar" style="font-size: 2rem; color: #ccc; margin-bottom: 10px; display: block;"></i>
+                            <p>Tidak ada data pemasukan untuk filter ini</p>
+                        </td>
+                    </tr>
+                `;
+                
+                // Reset statistik
+                document.getElementById('laporan-total').textContent = 'Rp 0';
+                document.getElementById('laporan-rata').textContent = 'Rp 0';
+                document.getElementById('laporan-jumlah').textContent = '0';
+                document.getElementById('laporan-rumah').textContent = '0';
+                return;
+            }
+            
+            // Hitung statistik
+            let totalPemasukan = 0;
+            let totalRumah = 0;
+            
+            filteredPemasukan.forEach((p, index) => {
+                totalPemasukan += p.total;
+                totalRumah += p.jumlahRumah;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${formatTanggal(p.tanggal)}</td>
+                    <td>${p.hari}</td>
+                    <td>${p.jumlahRumah} rumah</td>
+                    <td>${formatRupiah(p.iuranPerRumah)}</td>
+                    <td>${formatRupiah(p.total)}</td>
+                    <td>${p.keterangan}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Update statistik
+            const rataRata = totalPemasukan / filteredPemasukan.length;
+            
+            document.getElementById('laporan-total').textContent = formatRupiah(totalPemasukan);
+            document.getElementById('laporan-rata').textContent = formatRupiah(rataRata);
+            document.getElementById('laporan-jumlah').textContent = filteredPemasukan.length;
+            document.getElementById('laporan-rumah').textContent = totalRumah;
+        }
+        
+        // Export laporan ke CSV
+        function exportLaporanCSV() {
+            if (pemasukanData.length === 0) {
+                alert('Belum ada data pemasukan untuk diexport.');
+                return;
+            }
+            
+            const bulan = document.getElementById('filter-bulan').value;
+            const tahun = document.getElementById('filter-tahun').value;
+            const hari = document.getElementById('filter-hari').value;
+            
+            // Filter data pemasukan
+            let filteredPemasukan = pemasukanData;
+            
+            if (bulan !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => {
+                    const date = new Date(p.tanggal);
+                    return (date.getMonth() + 1) == bulan;
+                });
+            }
+            
+            if (tahun !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => {
+                    const date = new Date(p.tanggal);
+                    return date.getFullYear() == tahun;
+                });
+            }
+            
+            if (hari !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => p.hari === hari);
+            }
+            
+            if (filteredPemasukan.length === 0) {
+                alert('Tidak ada data untuk filter yang dipilih.');
+                return;
+            }
+            
+            // Urutkan berdasarkan tanggal terbaru
+            filteredPemasukan.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+            
+            let csvContent = "No,Tanggal,Hari,Jumlah Rumah,Iuran per Rumah,Total Pemasukan,Keterangan\n";
+            
+            filteredPemasukan.forEach((p, index) => {
+                csvContent += `${index + 1},${p.tanggal},${p.hari},${p.jumlahRumah},${p.iuranPerRumah},${p.total},${p.keterangan}\n`;
+            });
+            
+            // Tambahkan total
+            const totalPemasukan = filteredPemasukan.reduce((sum, p) => sum + p.total, 0);
+            const totalRumah = filteredPemasukan.reduce((sum, p) => sum + p.jumlahRumah, 0);
+            csvContent += `\nTOTAL,,,${totalRumah},,${totalPemasukan},\n`;
+            
+            downloadCSV(csvContent, `laporan_jimpitan_${getCurrentDateString()}.csv`);
+        }
+        
+        // Print laporan
+        function printLaporan() {
+            window.print();
+        }
+        
+        // Update dashboard
+        function updateDashboard() {
+            // Update statistik petugas
+            const totalPetugas = petugasData.length;
+            const petugasCowok = petugasData.filter(p => p.jenisKelamin === 'Laki-laki').length;
+            const petugasCewek = petugasData.filter(p => p.jenisKelamin === 'Perempuan').length;
+            
+            document.getElementById('dash-total-petugas').textContent = totalPetugas;
+            document.getElementById('dash-petugas-cowok').textContent = petugasCowok;
+            document.getElementById('dash-petugas-cewek').textContent = petugasCewek;
+            
+            // Update statistik pemasukan
+            const totalPemasukan = pemasukanData.reduce((sum, p) => sum + p.total, 0);
+            document.getElementById('dash-total-pemasukan').textContent = formatRupiah(totalPemasukan);
+        }
+        
+        // Update chart
+        function updateChart() {
+            const container = document.getElementById('chart-container');
+            container.innerHTML = '';
+            
+            // Ambil data 7 hari terakhir
+            const today = new Date();
+            const last7Days = [];
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                last7Days.push(date.toISOString().split('T')[0]);
+            }
+            
+            // Cari pemasukan untuk setiap hari
+            const dataChart = last7Days.map(date => {
+                const pemasukanHari = pemasukanData.filter(p => p.tanggal === date);
+                const totalHari = pemasukanHari.reduce((sum, p) => sum + p.total, 0);
+                return {
+                    date: date,
+                    total: totalHari,
+                    day: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'][new Date(date).getDay()]
+                };
+            });
+            
+            // Cari nilai maksimum untuk skala
+            const maxValue = Math.max(...dataChart.map(d => d.total), 18500);
+            
+            // Render chart bars
+            dataChart.forEach(data => {
+                const barHeight = (data.total / maxValue) * 150;
+                const bar = document.createElement('div');
+                bar.style.display = 'flex';
+                bar.style.flexDirection = 'column';
+                bar.style.alignItems = 'center';
+                bar.style.flex = 1;
+                
+                bar.innerHTML = `
+                    <div style="width: 30px; height: ${barHeight}px; background-color: ${data.total > 0 ? 'var(--success)' : '#e0e0e0'}; border-radius: 5px 5px 0 0;"></div>
+                    <div style="margin-top: 5px; font-size: 0.8rem; font-weight: 600;">${data.day}</div>
+                    <div style="margin-top: 3px; font-size: 0.7rem; color: #666;">${formatRupiah(data.total).replace('Rp', '').trim()}</div>
+                `;
+                
+                container.appendChild(bar);
+            });
         }
         
         // Refresh dashboard
         function refreshDashboard() {
-            updateStatistik();
-            setCurrentDate();
+            updateDashboard();
+            updateChart();
             alert('Dashboard diperbarui!');
         }
         
@@ -1392,10 +2004,6 @@
         function resetModalSections() {
             document.getElementById('export-section').style.display = 'none';
             document.getElementById('import-section').style.display = 'none';
-            document.getElementById('export-data-display').style.display = 'none';
-            document.getElementById('export-data-text').value = '';
-            document.getElementById('import-data-text').value = '';
-            document.getElementById('import-file').value = '';
         }
         
         function showExportSection() {
@@ -1417,15 +2025,7 @@
                 data: petugasData
             };
             
-            const dataStr = JSON.stringify(exportData, null, 2);
-            downloadJSON(dataStr, `petugas_jimpitan_${getCurrentDateString()}.json`);
-            
-            // Tampilkan di modal
-            document.getElementById('export-data-text').value = dataStr;
-            document.getElementById('export-data-display').style.display = 'block';
-            
-            // Tambahkan ke riwayat backup
-            addToBackupHistory('Export Petugas', petugasData.length);
+            downloadJSON(exportData, `petugas_jimpitan_${getCurrentDateString()}.json`);
         }
         
         function exportJadwal() {
@@ -1436,15 +2036,18 @@
                 data: jadwalData
             };
             
-            const dataStr = JSON.stringify(exportData, null, 2);
-            downloadJSON(dataStr, `jadwal_jimpitan_${getCurrentDateString()}.json`);
+            downloadJSON(exportData, `jadwal_jimpitan_${getCurrentDateString()}.json`);
+        }
+        
+        function exportPemasukan() {
+            const exportData = {
+                type: 'pemasukan',
+                version: '1.0',
+                exportedAt: new Date().toISOString(),
+                data: pemasukanData
+            };
             
-            // Tampilkan di modal
-            document.getElementById('export-data-text').value = dataStr;
-            document.getElementById('export-data-display').style.display = 'block';
-            
-            // Tambahkan ke riwayat backup
-            addToBackupHistory('Export Jadwal', Object.keys(jadwalData).length);
+            downloadJSON(exportData, `pemasukan_jimpitan_${getCurrentDateString()}.json`);
         }
         
         function exportAllData() {
@@ -1454,22 +2057,10 @@
                 exportedAt: new Date().toISOString(),
                 petugas: petugasData,
                 jadwal: jadwalData,
-                metadata: {
-                    totalPetugas: petugasData.length,
-                    totalJadwal: Object.keys(jadwalData).length,
-                    exportDevice: navigator.userAgent
-                }
+                pemasukan: pemasukanData
             };
             
-            const dataStr = JSON.stringify(exportData, null, 2);
-            downloadJSON(dataStr, `backup_jimpitan_${getCurrentDateString()}.json`);
-            
-            // Tampilkan di modal
-            document.getElementById('export-data-text').value = dataStr;
-            document.getElementById('export-data-display').style.display = 'block';
-            
-            // Tambahkan ke riwayat backup
-            addToBackupHistory('Export Semua Data', petugasData.length + Object.keys(jadwalData).length);
+            downloadJSON(exportData, `backup_jimpitan_${getCurrentDateString()}.json`);
         }
         
         // Quick backup
@@ -1478,56 +2069,29 @@
             alert('Backup berhasil dibuat!');
         }
         
-        // Copy to clipboard
-        function copyToClipboard() {
-            const textarea = document.getElementById('export-data-text');
-            textarea.select();
-            textarea.setSelectionRange(0, 99999); // For mobile devices
-            
-            navigator.clipboard.writeText(textarea.value)
-                .then(() => {
-                    alert('Data berhasil disalin ke clipboard!');
-                })
-                .catch(err => {
-                    console.error('Failed to copy: ', err);
-                    alert('Gagal menyalin ke clipboard');
-                });
-        }
-        
         // Import data functions
         function importData() {
             const importType = document.getElementById('import-type').value;
             const fileInput = document.getElementById('import-file');
-            const textInput = document.getElementById('import-data-text').value;
             
-            let importData;
+            if (fileInput.files.length === 0) {
+                alert('Pilih file terlebih dahulu!');
+                return;
+            }
             
-            if (fileInput.files.length > 0) {
-                // Import dari file
-                const file = fileInput.files[0];
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    try {
-                        importData = JSON.parse(e.target.result);
-                        processImportData(importData, importType);
-                    } catch (error) {
-                        alert('Format file tidak valid! Pastikan file adalah JSON yang benar.');
-                    }
-                };
-                
-                reader.readAsText(file);
-            } else if (textInput.trim() !== '') {
-                // Import dari text
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
                 try {
-                    importData = JSON.parse(textInput);
+                    const importData = JSON.parse(e.target.result);
                     processImportData(importData, importType);
                 } catch (error) {
-                    alert('Format JSON tidak valid!');
+                    alert('Format file tidak valid! Pastikan file adalah JSON yang benar.');
                 }
-            } else {
-                alert('Pilih file atau paste data JSON terlebih dahulu!');
-            }
+            };
+            
+            reader.readAsText(file);
         }
         
         function processImportData(data, importType) {
@@ -1537,9 +2101,8 @@
             if (importType === 'auto') {
                 if (data.type === 'petugas') detectedType = 'petugas';
                 else if (data.type === 'jadwal') detectedType = 'jadwal';
-                else if (data.type === 'all' || (data.petugas && data.jadwal)) detectedType = 'all';
-                else if (Array.isArray(data)) detectedType = 'petugas';
-                else if (typeof data === 'object' && !Array.isArray(data)) detectedType = 'jadwal';
+                else if (data.type === 'pemasukan') detectedType = 'pemasukan';
+                else if (data.type === 'all') detectedType = 'all';
             }
             
             if (!confirm(`Import data ${detectedType}? Data lama akan diganti.`)) {
@@ -1549,52 +2112,41 @@
             try {
                 switch(detectedType) {
                     case 'petugas':
-                        const petugasArray = data.data || data;
-                        if (Array.isArray(petugasArray)) {
-                            petugasData = petugasArray;
-                            localStorage.setItem('petugas_jimpitan', JSON.stringify(petugasData));
-                        } else {
-                            throw new Error('Format data petugas tidak valid');
-                        }
+                        petugasData = data.data || data;
+                        localStorage.setItem('petugas_jimpitan', JSON.stringify(petugasData));
                         break;
                         
                     case 'jadwal':
-                        const jadwalObject = data.data || data;
-                        if (typeof jadwalObject === 'object' && !Array.isArray(jadwalObject)) {
-                            jadwalData = jadwalObject;
-                            localStorage.setItem('jadwal_petugas', JSON.stringify(jadwalData));
-                        } else {
-                            throw new Error('Format data jadwal tidak valid');
-                        }
+                        jadwalData = data.data || data;
+                        localStorage.setItem('jadwal_petugas', JSON.stringify(jadwalData));
+                        break;
+                        
+                    case 'pemasukan':
+                        pemasukanData = data.data || data;
+                        localStorage.setItem('pemasukan_jimpitan', JSON.stringify(pemasukanData));
                         break;
                         
                     case 'all':
-                        if (data.petugas && data.jadwal) {
+                        if (data.petugas && data.jadwal && data.pemasukan) {
                             petugasData = data.petugas;
                             jadwalData = data.jadwal;
+                            pemasukanData = data.pemasukan;
                             localStorage.setItem('petugas_jimpitan', JSON.stringify(petugasData));
                             localStorage.setItem('jadwal_petugas', JSON.stringify(jadwalData));
-                        } else {
-                            throw new Error('Format data lengkap tidak valid');
+                            localStorage.setItem('pemasukan_jimpitan', JSON.stringify(pemasukanData));
                         }
                         break;
-                        
-                    default:
-                        throw new Error('Tipe data tidak dikenali');
                 }
                 
                 // Update UI
                 renderDaftarPetugas();
                 renderJadwalManual();
+                renderRiwayatPemasukan();
                 updateStatistik();
                 renderPetugasTerbaru();
-                setCurrentDate();
-                
-                // Tambahkan ke riwayat backup
-                addToBackupHistory(`Import ${detectedType}`, 
-                    detectedType === 'petugas' ? petugasData.length : 
-                    detectedType === 'jadwal' ? Object.keys(jadwalData).length :
-                    petugasData.length + Object.keys(jadwalData).length);
+                renderPemasukanTerbaru();
+                updateDashboard();
+                updateChart();
                 
                 // Close modal
                 closeModal();
@@ -1607,22 +2159,12 @@
         }
         
         function resetImport() {
-            document.getElementById('import-data-text').value = '';
             document.getElementById('import-file').value = '';
-        }
-        
-        // Handle file import dari tab backup
-        function handleFileImport() {
-            const fileInput = document.getElementById('restore-file');
-            if (fileInput.files.length > 0) {
-                document.getElementById('restore-type').value = 'auto';
-            }
         }
         
         // Restore dari file (tab backup)
         function restoreFromFile() {
             const fileInput = document.getElementById('restore-file');
-            const restoreType = document.getElementById('restore-type').value;
             
             if (fileInput.files.length === 0) {
                 alert('Pilih file backup terlebih dahulu!');
@@ -1635,7 +2177,14 @@
             reader.onload = function(e) {
                 try {
                     const importData = JSON.parse(e.target.result);
-                    processImportData(importData, restoreType);
+                    // Auto detect type
+                    let importType = 'auto';
+                    if (importData.type === 'petugas') importType = 'petugas';
+                    else if (importData.type === 'jadwal') importType = 'jadwal';
+                    else if (importData.type === 'pemasukan') importType = 'pemasukan';
+                    else if (importData.type === 'all') importType = 'all';
+                    
+                    processImportData(importData, importType);
                 } catch (error) {
                     alert('Format file tidak valid! Pastikan file adalah backup dari sistem ini.');
                 }
@@ -1644,66 +2193,122 @@
             reader.readAsText(file);
         }
         
-        // Tambahkan ke riwayat backup
-        function addToBackupHistory(action, itemCount) {
-            const historyItem = {
-                id: Date.now(),
-                action: action,
-                itemCount: itemCount,
-                timestamp: new Date().toISOString(),
-                date: new Date().toLocaleDateString('id-ID'),
-                time: new Date().toLocaleTimeString('id-ID')
-            };
-            
-            backupHistory.unshift(historyItem);
-            // Simpan maksimal 10 riwayat terakhir
-            backupHistory = backupHistory.slice(0, 10);
-            localStorage.setItem('backup_history', JSON.stringify(backupHistory));
-            
-            renderBackupHistory();
-        }
+        // ============================================
+        // FUNGSI EXPORT KE CSV
+        // ============================================
         
-        // Render riwayat backup
-        function renderBackupHistory() {
-            const container = document.getElementById('backup-history');
-            
-            if (backupHistory.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Belum ada riwayat backup</p>';
+        // Export petugas ke CSV
+        function exportPetugasCSV() {
+            if (petugasData.length === 0) {
+                alert('Belum ada data petugas untuk diexport!');
                 return;
             }
             
-            container.innerHTML = '';
-            backupHistory.forEach(item => {
-                const historyItem = document.createElement('div');
-                historyItem.style.padding = '10px';
-                historyItem.style.borderBottom = '1px solid #eee';
-                historyItem.style.display = 'flex';
-                historyItem.style.justifyContent = 'space-between';
-                historyItem.style.alignItems = 'center';
-                
-                historyItem.innerHTML = `
-                    <div>
-                        <div style="font-weight: 600;">${item.action}</div>
-                        <div style="font-size: 0.8rem; color: #666;">${item.date} ${item.time}</div>
-                    </div>
-                    <div style="color: var(--primary); font-weight: 600;">${item.itemCount} item</div>
-                `;
-                
-                container.appendChild(historyItem);
+            let csvContent = "No,Nama,Jenis Kelamin,Alamat,Telepon,Tanggal Daftar\n";
+            
+            petugasData.forEach((p, index) => {
+                csvContent += `${index + 1},${p.nama},${p.jenisKelamin},${p.alamat},${p.telepon},${p.tanggalDaftar}\n`;
             });
+            
+            downloadCSV(csvContent, `petugas_jimpitan_${getCurrentDateString()}.csv`);
+        }
+        
+        // Export pemasukan ke CSV
+        function exportPemasukanCSV() {
+            if (pemasukanData.length === 0) {
+                alert('Belum ada data pemasukan untuk diexport!');
+                return;
+            }
+            
+            let csvContent = "No,Tanggal,Hari,Jumlah Rumah,Iuran per Rumah,Total Pemasukan,Keterangan\n";
+            
+            pemasukanData.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+            
+            pemasukanData.forEach((p, index) => {
+                csvContent += `${index + 1},${p.tanggal},${p.hari},${p.jumlahRumah},${p.iuranPerRumah},${p.total},${p.keterangan}\n`;
+            });
+            
+            downloadCSV(csvContent, `pemasukan_jimpitan_${getCurrentDateString()}.csv`);
+        }
+        
+        // Export ke JSON (untuk backup)
+        function exportPetugasJSON() {
+            const exportData = {
+                type: 'petugas',
+                version: '1.0',
+                exportedAt: new Date().toISOString(),
+                data: petugasData
+            };
+            
+            downloadJSON(exportData, `petugas_jimpitan_${getCurrentDateString()}.json`);
+        }
+        
+        function exportJadwalJSON() {
+            const exportData = {
+                type: 'jadwal',
+                version: '1.0',
+                exportedAt: new Date().toISOString(),
+                data: jadwalData
+            };
+            
+            downloadJSON(exportData, `jadwal_jimpitan_${getCurrentDateString()}.json`);
+        }
+        
+        function exportPemasukanJSON() {
+            const exportData = {
+                type: 'pemasukan',
+                version: '1.0',
+                exportedAt: new Date().toISOString(),
+                data: pemasukanData
+            };
+            
+            downloadJSON(exportData, `pemasukan_jimpitan_${getCurrentDateString()}.json`);
+        }
+        
+        function exportAllJSON() {
+            const exportData = {
+                type: 'all',
+                version: '1.0',
+                exportedAt: new Date().toISOString(),
+                petugas: petugasData,
+                jadwal: jadwalData,
+                pemasukan: pemasukanData,
+                metadata: {
+                    totalPetugas: petugasData.length,
+                    totalPemasukan: pemasukanData.reduce((sum, p) => sum + p.total, 0),
+                    exportDate: new Date().toISOString()
+                }
+            };
+            
+            downloadJSON(exportData, `backup_jimpitan_${getCurrentDateString()}.json`);
         }
         
         // Helper functions
+        function downloadCSV(csvContent, filename) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            alert(`File ${filename} berhasil didownload!`);
+        }
+        
         function downloadJSON(data, filename) {
-            const blob = new Blob([data], { type: 'application/json' });
+            const dataStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
             link.download = filename;
-            document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
             URL.revokeObjectURL(url);
+            
+            alert(`File ${filename} berhasil didownload!`);
         }
         
         function getCurrentDateString() {
@@ -1718,9 +2323,6 @@
                 closeModal();
             }
         };
-        
-        // Initial render backup history
-        renderBackupHistory();
     </script>
 </body>
 </html>
