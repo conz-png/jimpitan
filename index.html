@@ -26,6 +26,8 @@
             --light: #f9f9f9;
             --dark: #333;
             --gray: #e0e0e0;
+            --weekly-color: #9C27B0;
+            --monthly-color: #009688;
         }
 
         body {
@@ -441,6 +443,16 @@
             color: #ff8f00;
         }
 
+        .badge-weekly {
+            background-color: rgba(156, 39, 176, 0.1);
+            color: var(--weekly-color);
+        }
+
+        .badge-monthly {
+            background-color: rgba(0, 150, 136, 0.1);
+            color: var(--monthly-color);
+        }
+
         /* Stats Grid */
         .stats-grid {
             display: grid;
@@ -472,6 +484,14 @@
 
         .stat-value.success {
             color: var(--success);
+        }
+
+        .stat-value.weekly {
+            color: var(--weekly-color);
+        }
+
+        .stat-value.monthly {
+            color: var(--monthly-color);
         }
 
         .stat-label {
@@ -696,14 +716,14 @@
                     <img src="logo_mld.png" alt="Logo MLD" class="logo-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/70x70/1976D2/FFFFFF?text=MLD';">
                     <div class="logo-text">
                         <h1>Sistem Jimpitan MLD</h1>
-                        <p>Pemuda 26</p>
+                        <p>Pemuda 26 - Iuran Fleksibel</p>
                     </div>
                 </div>
                 <div class="sync-status">
                     <i class="fas fa-database"></i>
                     <div>
                         <div style="font-weight: 600;">Data Local</div>
-                        <div style="font-size: 0.9rem;">Iuran: Rp 500/hari</div>
+                        <div style="font-size: 0.9rem;">Iuran: Fleksibel (Harian/Mingguan/Bulanan)</div>
                     </div>
                 </div>
             </div>
@@ -752,6 +772,30 @@
                             <div class="stat-card">
                                 <div class="stat-label">Total Pemasukan</div>
                                 <div class="stat-value success" id="dash-total-pemasukan">Rp 0</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Statistik per Jenis Iuran -->
+                        <div class="stats-grid" style="margin-top: 20px;">
+                            <div class="stat-card">
+                                <div class="stat-label">Iuran Harian</div>
+                                <div class="stat-value success" id="dash-harian">Rp 0</div>
+                                <div class="stat-label" id="dash-harian-count">0 transaksi</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Iuran Mingguan</div>
+                                <div class="stat-value weekly" id="dash-mingguan">Rp 0</div>
+                                <div class="stat-label" id="dash-mingguan-count">0 transaksi</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Iuran Bulanan</div>
+                                <div class="stat-value monthly" id="dash-bulanan">Rp 0</div>
+                                <div class="stat-label" id="dash-bulanan-count">0 transaksi</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Iuran Custom</div>
+                                <div class="stat-value" id="dash-custom">Rp 0</div>
+                                <div class="stat-label" id="dash-custom-count">0 transaksi</div>
                             </div>
                         </div>
                         
@@ -865,7 +909,7 @@
                             <ul style="padding-left: 20px; margin-top: 10px;">
                                 <li><strong>Senin, Rabu, Kamis, Jumat, Sabtu, Minggu:</strong> Pilih 3 petugas laki-laki</li>
                                 <li><strong>Selasa:</strong> Pilih 7 petugas perempuan (hanya perempuan)</li>
-                                <li>Iuran per KK: <strong>Rp 500 per hari</strong></li>
+                                <li>Iuran per KK: <strong>Fleksibel (Harian/Mingguan/Bulanan)</strong></li>
                             </ul>
                         </div>
                     </div>
@@ -897,32 +941,62 @@
                                     </select>
                                 </div>
                                 
+                                <!-- Jenis Iuran -->
+                                <div class="form-group">
+                                    <label for="jenis-iuran">Jenis Iuran</label>
+                                    <select id="jenis-iuran" class="form-control" required onchange="updateIuranPerRumah()">
+                                        <option value="harian" data-iuran="500">Harian (Rp 500)</option>
+                                        <option value="mingguan" data-iuran="3500">Mingguan (Rp 3.500)</option>
+                                        <option value="bulanan" data-iuran="15000">Bulanan (Rp 15.000)</option>
+                                        <option value="custom">Custom (Manual)</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Input custom untuk iuran manual -->
+                                <div class="form-group" id="custom-iuran-group" style="display: none;">
+                                    <label for="custom-iuran">Jumlah Iuran per KK</label>
+                                    <input type="number" id="custom-iuran" class="form-control" min="1" value="500">
+                                </div>
+                                
                                 <div class="form-group">
                                     <label for="jumlah-rumah">Jumlah KK</label>
                                     <input type="number" id="jumlah-rumah" class="form-control" min="1" value="37" required>
                                 </div>
                                 
+                                <!-- Iuran per rumah (otomatis/manual) -->
                                 <div class="form-group">
-                                    <label for="total-pemasukan">Total Pemasukan (Otomatis)</label>
+                                    <label for="iuran-per-rumah">Iuran per KK</label>
+                                    <div class="form-row">
+                                        <input type="number" id="iuran-per-rumah" class="form-control" value="500" min="1" required>
+                                        <span class="btn btn-secondary" onclick="updateTotalPemasukan()">
+                                            <i class="fas fa-sync-alt"></i> Update
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="total-pemasukan">Total Pemasukan</label>
                                     <div class="form-row">
                                         <input type="text" id="total-pemasukan" class="form-control" value="Rp 18.500" readonly style="flex: 1;">
-                                        <span class="btn btn-secondary" onclick="hitungPemasukan()">
+                                        <span class="btn btn-success" onclick="hitungPemasukan()">
                                             <i class="fas fa-calculator"></i> Hitung
                                         </span>
                                     </div>
                                 </div>
                             </div>
                             
+                            <!-- Catatan khusus -->
                             <div class="form-group">
-                                <label for="keterangan-pemasukan">Keterangan (Opsional)</label>
-                                <textarea id="keterangan-pemasukan" class="form-control" rows="3" placeholder="Tambahkan keterangan jika perlu"></textarea>
+                                <label for="keterangan-pemasukan">Keterangan <span id="keterangan-wajib" style="color: red; display: none;">*</span></label>
+                                <textarea id="keterangan-pemasukan" class="form-control" rows="3" placeholder="Contoh: Iuran mingguan minggu ke-2, atau Iuran bulanan Januari"></textarea>
+                                <small style="color: #666; font-size: 0.85rem;">Untuk iuran mingguan/bulanan/custom, harap isi keterangan periode.</small>
                             </div>
                             
                             <button type="submit" class="btn btn-success">
                                 <i class="fas fa-save"></i> Simpan Pemasukan
                             </button>
-                            <button type="reset" class="btn btn-secondary">
-                                <i class="fas fa-redo"></i> Reset
+                            <button type="reset" class="btn btn-secondary" onclick="resetPemasukanForm()">
+                                <i class="fas fa-redo"></i> Reset Form
                             </button>
                         </form>
                         
@@ -933,6 +1007,7 @@
                                     <tr>
                                         <th>Tanggal</th>
                                         <th>Hari</th>
+                                        <th>Jenis Iuran</th>
                                         <th>Jumlah KK</th>
                                         <th>Total Pemasukan</th>
                                         <th>Keterangan</th>
@@ -1002,6 +1077,17 @@
                                     </select>
                                 </div>
                                 
+                                <div class="form-group" style="flex: 1;">
+                                    <label for="filter-jenis-iuran">Jenis Iuran</label>
+                                    <select id="filter-jenis-iuran" class="form-control">
+                                        <option value="semua">Semua Jenis</option>
+                                        <option value="harian">Harian</option>
+                                        <option value="mingguan">Mingguan</option>
+                                        <option value="bulanan">Bulanan</option>
+                                        <option value="custom">Custom</option>
+                                    </select>
+                                </div>
+                                
                                 <div class="form-group">
                                     <button class="btn btn-primary" id="filter-apply">
                                         <i class="fas fa-filter"></i> Terapkan Filter
@@ -1016,7 +1102,7 @@
                                 <div class="stat-value success" id="laporan-total">Rp 0</div>
                             </div>
                             <div class="stat-card">
-                                <div class="stat-label">Rata-rata Harian</div>
+                                <div class="stat-label">Rata-rata per Transaksi</div>
                                 <div class="stat-value" id="laporan-rata">Rp 0</div>
                             </div>
                             <div class="stat-card">
@@ -1024,7 +1110,7 @@
                                 <div class="stat-value" id="laporan-jumlah">0</div>
                             </div>
                             <div class="stat-card">
-                                <div class="stat-label">Rumah Tercover</div>
+                                <div class="stat-label">Total KK Tercover</div>
                                 <div class="stat-value" id="laporan-rumah">0</div>
                             </div>
                         </div>
@@ -1036,6 +1122,7 @@
                                         <th>No</th>
                                         <th>Tanggal</th>
                                         <th>Hari</th>
+                                        <th>Jenis Iuran</th>
                                         <th>Jumlah KK</th>
                                         <th>Iuran per KK</th>
                                         <th>Total Pemasukan</th>
@@ -1137,8 +1224,8 @@
                             <div class="stat-value" id="stat-total-rumah">37</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-label">Target Pemasukan</div>
-                            <div class="stat-value success" id="stat-target-pemasukan">Rp 18.500</div>
+                            <div class="stat-label">Target Harian</div>
+                            <div class="stat-value success" id="stat-target-harian">Rp 18.500</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-label">Pemasukan Hari Ini</div>
@@ -1152,7 +1239,11 @@
                     
                     <div style="margin-top: 20px; padding: 15px; background-color: #f0f7ff; border-radius: 8px;">
                         <p style="font-weight: 600; margin-bottom: 8px;"><i class="fas fa-calendar-day"></i> <span id="info-hari-ini">-</span></p>
-                        <p style="margin-top: 8px; font-size: 0.9rem;">Iuran per kk: <strong>Rp 500</strong></p>
+                        <p style="margin-top: 8px; font-size: 0.9rem;">
+                            Iuran: <strong>Rp 500</strong> (Harian) | 
+                            <strong>Rp 3.500</strong> (Mingguan) | 
+                            <strong>Rp 15.000</strong> (Bulanan)
+                        </p>
                     </div>
                 </div>
 
@@ -1193,9 +1284,9 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>&copy; 2025 Sistem Jimpitan MLD - Pemuda 26</p>
+            <p>&copy; 2025 Sistem Jimpitan MLD - Pemuda 26 (Iuran Fleksibel)</p>
             <p style="margin-top: 10px; font-size: 0.9rem;">
-                <i class="fas fa-file-csv"></i> v1.1
+                <i class="fas fa-file-csv"></i> v2.0 - Support Harian/Mingguan/Bulanan
             </p>
         </div>
     </footer>
@@ -1211,6 +1302,7 @@
         
         // Inisialisasi saat halaman dimuat
         document.addEventListener('DOMContentLoaded', function() {
+            migrateOldData(); // Migrasi data lama ke format baru
             initForm();
             initTabs();
             initFilterButtons();
@@ -1243,15 +1335,30 @@
             document.getElementById('hari-pemasukan').value = hari[currentDayIndex];
         });
         
+        // Migrasi data lama ke format baru
+        function migrateOldData() {
+            const oldData = JSON.parse(localStorage.getItem('pemasukan_jimpitan')) || [];
+            
+            if (oldData.length > 0 && !oldData[0].jenisIuran) {
+                // Data lama, tambahkan field jenisIuran
+                const migratedData = oldData.map(item => ({
+                    ...item,
+                    jenisIuran: 'harian',
+                    iuranPerRumah: item.iuranPerRumah || 500
+                }));
+                
+                localStorage.setItem('pemasukan_jimpitan', JSON.stringify(migratedData));
+                pemasukanData = migratedData;
+                console.log('Data berhasil dimigrasi ke format baru!');
+            }
+        }
+        
         // Set tanggal hari ini
         function setCurrentDate() {
             const now = new Date();
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const hariIni = hari[now.getDay()];
             document.getElementById('info-hari-ini').textContent = now.toLocaleDateString('id-ID', options);
-            
-            // Update kebutuhan hari ini
-            const kebutuhan = (hariIni === 'Selasa') ? '7 Petugas Perempuan' : '3 Petugas Laki-laki';
         }
         
         // Inisialisasi form
@@ -1420,7 +1527,7 @@
             document.getElementById('stat-pemasukan-bulan-ini').textContent = formatRupiah(getPemasukanBulanIni());
             
             // Update target pemasukan
-            document.getElementById('stat-target-pemasukan').textContent = formatRupiah(37 * 500);
+            document.getElementById('stat-target-harian').textContent = formatRupiah(37 * 500);
         }
         
         // Format ke Rupiah
@@ -1467,16 +1574,21 @@
             container.innerHTML = '';
             petugasTerbaru.forEach(p => {
                 const card = document.createElement('div');
-                card.className = `petugas-card ${p.jenisKelamin === 'Perempuan' ? 'female' : ''}`;
-                card.style.marginBottom = '10px';
+                card.style.display = 'flex';
+                card.style.alignItems = 'center';
+                card.style.gap = '12px';
+                card.style.padding = '12px';
+                card.style.borderBottom = '1px solid #eee';
+                
+                const iconColor = p.jenisKelamin === 'Perempuan' ? 'var(--female-color)' : 'var(--male-color)';
+                
                 card.innerHTML = `
-                    <div class="petugas-avatar ${p.jenisKelamin === 'Laki-laki' ? 'male' : 'female'}">
-                        <i class="fas fa-user"></i>
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background-color: ${iconColor}20; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-${p.jenisKelamin === 'Perempuan' ? 'female' : 'male'}" style="color: ${iconColor};"></i>
                     </div>
-                    <div class="petugas-info">
-                        <div class="petugas-name">${p.nama}</div>
-                        <div class="petugas-gender">${p.jenisKelamin}</div>
-                        <div style="font-size: 0.8rem; color: #777; margin-top: 5px;">${p.alamat}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">${p.nama}</div>
+                        <div style="font-size: 0.85rem; color: #666;">${p.alamat}</div>
                     </div>
                 `;
                 container.appendChild(card);
@@ -1620,31 +1732,62 @@
         function initPemasukanForm() {
             const form = document.getElementById('form-pemasukan');
             
-            // Hitung pemasukan otomatis
+            // Event listener untuk jenis iuran
+            document.getElementById('jenis-iuran').addEventListener('change', function() {
+                const isSpecial = this.value === 'mingguan' || this.value === 'bulanan' || this.value === 'custom';
+                const keteranganWajib = document.getElementById('keterangan-wajib');
+                const keteranganField = document.getElementById('keterangan-pemasukan');
+                
+                if (isSpecial) {
+                    keteranganWajib.style.display = 'inline';
+                    keteranganField.required = true;
+                } else {
+                    keteranganWajib.style.display = 'none';
+                    keteranganField.required = false;
+                }
+                
+                updateIuranPerRumah();
+            });
+            
+            // Event listeners untuk hitung otomatis
             document.getElementById('jumlah-rumah').addEventListener('input', hitungPemasukan);
+            document.getElementById('iuran-per-rumah').addEventListener('input', hitungPemasukan);
+            document.getElementById('custom-iuran').addEventListener('input', function() {
+                document.getElementById('iuran-per-rumah').value = this.value;
+                hitungPemasukan();
+            });
             
             // Handle submit form
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
                 const tanggal = document.getElementById('tanggal-pemasukan').value;
-                const hari = document.getElementById('hari-pemasukan').value;
+                const hariValue = document.getElementById('hari-pemasukan').value;
+                const jenisIuran = document.getElementById('jenis-iuran').value;
                 const jumlahRumah = parseInt(document.getElementById('jumlah-rumah').value);
+                const iuranPerRumah = parseInt(document.getElementById('iuran-per-rumah').value);
                 const total = parseInt(document.getElementById('total-pemasukan').value.replace(/\D/g, ''));
                 const keterangan = document.getElementById('keterangan-pemasukan').value;
                 
-                if (!tanggal || !hari || !jumlahRumah || !total) {
+                // Validasi untuk iuran khusus
+                if ((jenisIuran === 'mingguan' || jenisIuran === 'bulanan' || jenisIuran === 'custom') && !keterangan) {
+                    alert('Keterangan wajib diisi untuk iuran mingguan/bulanan/custom!');
+                    return;
+                }
+                
+                if (!tanggal || !hariValue || !jumlahRumah || !total) {
                     alert('Data tidak lengkap!');
                     return;
                 }
                 
-                // Tambahkan pemasukan baru
+                // Tambahkan pemasukan baru dengan struktur baru
                 const pemasukanBaru = {
                     id: Date.now(),
                     tanggal: tanggal,
-                    hari: hari,
+                    hari: hariValue,
+                    jenisIuran: jenisIuran,
                     jumlahRumah: jumlahRumah,
-                    iuranPerRumah: 500,
+                    iuranPerRumah: iuranPerRumah,
                     total: total,
                     keterangan: keterangan || '-',
                     createdAt: new Date().toISOString()
@@ -1654,14 +1797,7 @@
                 localStorage.setItem('pemasukan_jimpitan', JSON.stringify(pemasukanData));
                 
                 // Reset form
-                form.reset();
-                
-                // Set default values
-                document.getElementById('tanggal-pemasukan').value = new Date().toISOString().split('T')[0];
-                const currentDayIndex = new Date().getDay();
-                document.getElementById('hari-pemasukan').value = hari[currentDayIndex];
-                document.getElementById('jumlah-rumah').value = 37;
-                hitungPemasukan();
+                resetPemasukanForm();
                 
                 // Update tampilan
                 renderRiwayatPemasukan();
@@ -1670,15 +1806,72 @@
                 updateDashboard();
                 updateChart();
                 
-                alert(`Pemasukan sebesar ${formatRupiah(total)} berhasil disimpan!`);
+                alert(`Pemasukan ${getJenisIuranNama(jenisIuran)} sebesar ${formatRupiah(total)} berhasil disimpan!`);
             });
+        }
+        
+        // Fungsi untuk update iuran per rumah berdasarkan jenis
+        function updateIuranPerRumah() {
+            const jenisIuran = document.getElementById('jenis-iuran');
+            const selectedOption = jenisIuran.options[jenisIuran.selectedIndex];
+            const customGroup = document.getElementById('custom-iuran-group');
+            
+            if (jenisIuran.value === 'custom') {
+                customGroup.style.display = 'block';
+                const customValue = document.getElementById('custom-iuran').value || 500;
+                document.getElementById('iuran-per-rumah').value = customValue;
+            } else {
+                customGroup.style.display = 'none';
+                const iuranValue = selectedOption.getAttribute('data-iuran');
+                document.getElementById('iuran-per-rumah').value = iuranValue;
+                document.getElementById('custom-iuran').value = iuranValue;
+            }
+            
+            hitungPemasukan();
         }
         
         // Hitung pemasukan
         function hitungPemasukan() {
             const jumlahRumah = parseInt(document.getElementById('jumlah-rumah').value) || 0;
-            const total = jumlahRumah * 500;
+            const iuranPerRumah = parseInt(document.getElementById('iuran-per-rumah').value) || 0;
+            const total = jumlahRumah * iuranPerRumah;
             document.getElementById('total-pemasukan').value = formatRupiah(total);
+        }
+        
+        // Update total pemasukan
+        function updateTotalPemasukan() {
+            hitungPemasukan();
+        }
+        
+        // Reset form pemasukan
+        function resetPemasukanForm() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('tanggal-pemasukan').value = today;
+            
+            const currentDayIndex = new Date().getDay();
+            document.getElementById('hari-pemasukan').value = hari[currentDayIndex];
+            
+            document.getElementById('jenis-iuran').value = 'harian';
+            document.getElementById('custom-iuran-group').style.display = 'none';
+            document.getElementById('iuran-per-rumah').value = '500';
+            document.getElementById('jumlah-rumah').value = '37';
+            document.getElementById('custom-iuran').value = '500';
+            document.getElementById('keterangan-pemasukan').value = '';
+            document.getElementById('keterangan-wajib').style.display = 'none';
+            document.getElementById('keterangan-pemasukan').required = false;
+            
+            hitungPemasukan();
+        }
+        
+        // Helper function untuk mendapatkan nama jenis iuran
+        function getJenisIuranNama(jenis) {
+            switch(jenis) {
+                case 'harian': return 'Harian';
+                case 'mingguan': return 'Mingguan';
+                case 'bulanan': return 'Bulanan';
+                case 'custom': return 'Custom';
+                default: return 'Harian';
+            }
         }
         
         // Render riwayat pemasukan
@@ -1689,7 +1882,7 @@
             if (pemasukanData.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 30px;">
+                        <td colspan="6" style="text-align: center; padding: 30px;">
                             <i class="fas fa-file-invoice-dollar" style="font-size: 2rem; color: #ccc; margin-bottom: 10px; display: block;"></i>
                             <p>Belum ada data pemasukan</p>
                         </td>
@@ -1708,12 +1901,24 @@
                 row.innerHTML = `
                     <td>${formatTanggal(p.tanggal)}</td>
                     <td>${p.hari}</td>
+                    <td><span class="badge ${getBadgeClassForIuran(p.jenisIuran)}">${getJenisIuranNama(p.jenisIuran)}</span></td>
                     <td>${p.jumlahRumah} rumah</td>
                     <td>${formatRupiah(p.total)}</td>
                     <td>${p.keterangan}</td>
                 `;
                 tbody.appendChild(row);
             });
+        }
+        
+        // Helper untuk badge class berdasarkan jenis iuran
+        function getBadgeClassForIuran(jenisIuran) {
+            switch(jenisIuran) {
+                case 'harian': return 'badge-success';
+                case 'mingguan': return 'badge-weekly';
+                case 'bulanan': return 'badge-monthly';
+                case 'custom': return 'badge-warning';
+                default: return 'badge-success';
+            }
         }
         
         // Render pemasukan terbaru
@@ -1739,18 +1944,32 @@
                 item.style.justifyContent = 'space-between';
                 item.style.alignItems = 'center';
                 
+                const jenisColor = getColorForIuran(p.jenisIuran);
+                
                 item.innerHTML = `
                     <div>
-                        <div style="font-weight: 600; color: var(--primary);">${p.hari}</div>
+                        <div style="font-weight: 600; color: ${jenisColor};">${p.hari} (${getJenisIuranNama(p.jenisIuran)})</div>
                         <div style="font-size: 0.85rem; color: #666;">${formatTanggal(p.tanggal)}</div>
+                        <div style="font-size: 0.85rem; color: #666;">${p.keterangan}</div>
                     </div>
                     <div style="text-align: right;">
-                        <div style="font-weight: 700; color: var(--success);">${formatRupiah(p.total)}</div>
+                        <div style="font-weight: 700; color: ${jenisColor};">${formatRupiah(p.total)}</div>
                         <div style="font-size: 0.85rem; color: #666;">${p.jumlahRumah} rumah</div>
                     </div>
                 `;
                 container.appendChild(item);
             });
+        }
+        
+        // Helper untuk warna berdasarkan jenis iuran
+        function getColorForIuran(jenisIuran) {
+            switch(jenisIuran) {
+                case 'harian': return 'var(--success)';
+                case 'mingguan': return 'var(--weekly-color)';
+                case 'bulanan': return 'var(--monthly-color)';
+                case 'custom': return 'var(--warning)';
+                default: return 'var(--success)';
+            }
         }
         
         // Format tanggal pendek
@@ -1780,7 +1999,8 @@
         function renderLaporan() {
             const bulan = document.getElementById('filter-bulan').value;
             const tahun = document.getElementById('filter-tahun').value;
-            const hari = document.getElementById('filter-hari').value;
+            const hariFilter = document.getElementById('filter-hari').value;
+            const jenisIuranFilter = document.getElementById('filter-jenis-iuran').value;
             
             const tbody = document.getElementById('laporan-body');
             tbody.innerHTML = '';
@@ -1802,8 +2022,12 @@
                 });
             }
             
-            if (hari !== 'semua') {
-                filteredPemasukan = filteredPemasukan.filter(p => p.hari === hari);
+            if (hariFilter !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => p.hari === hariFilter);
+            }
+            
+            if (jenisIuranFilter !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => p.jenisIuran === jenisIuranFilter);
             }
             
             // Urutkan berdasarkan tanggal terbaru
@@ -1812,7 +2036,7 @@
             if (filteredPemasukan.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px;">
+                        <td colspan="8" style="text-align: center; padding: 30px;">
                             <i class="fas fa-chart-bar" style="font-size: 2rem; color: #ccc; margin-bottom: 10px; display: block;"></i>
                             <p>Tidak ada data pemasukan untuk filter ini</p>
                         </td>
@@ -1840,6 +2064,7 @@
                     <td>${index + 1}</td>
                     <td>${formatTanggal(p.tanggal)}</td>
                     <td>${p.hari}</td>
+                    <td><span class="badge ${getBadgeClassForIuran(p.jenisIuran)}">${getJenisIuranNama(p.jenisIuran)}</span></td>
                     <td>${p.jumlahRumah} rumah</td>
                     <td>${formatRupiah(p.iuranPerRumah)}</td>
                     <td>${formatRupiah(p.total)}</td>
@@ -1866,7 +2091,8 @@
             
             const bulan = document.getElementById('filter-bulan').value;
             const tahun = document.getElementById('filter-tahun').value;
-            const hari = document.getElementById('filter-hari').value;
+            const hariFilter = document.getElementById('filter-hari').value;
+            const jenisIuranFilter = document.getElementById('filter-jenis-iuran').value;
             
             // Filter data pemasukan
             let filteredPemasukan = pemasukanData;
@@ -1885,8 +2111,12 @@
                 });
             }
             
-            if (hari !== 'semua') {
-                filteredPemasukan = filteredPemasukan.filter(p => p.hari === hari);
+            if (hariFilter !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => p.hari === hariFilter);
+            }
+            
+            if (jenisIuranFilter !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => p.jenisIuran === jenisIuranFilter);
             }
             
             if (filteredPemasukan.length === 0) {
@@ -1897,16 +2127,16 @@
             // Urutkan berdasarkan tanggal terbaru
             filteredPemasukan.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
             
-            let csvContent = "No,Tanggal,Hari,Jumlah Rumah,Iuran per Rumah,Total Pemasukan,Keterangan\n";
+            let csvContent = "No,Tanggal,Hari,Jenis Iuran,Jumlah Rumah,Iuran per Rumah,Total Pemasukan,Keterangan\n";
             
             filteredPemasukan.forEach((p, index) => {
-                csvContent += `${index + 1},${p.tanggal},${p.hari},${p.jumlahRumah},${p.iuranPerRumah},${p.total},${p.keterangan}\n`;
+                csvContent += `${index + 1},${p.tanggal},${p.hari},${getJenisIuranNama(p.jenisIuran)},${p.jumlahRumah},${p.iuranPerRumah},${p.total},${p.keterangan}\n`;
             });
             
             // Tambahkan total
             const totalPemasukan = filteredPemasukan.reduce((sum, p) => sum + p.total, 0);
             const totalRumah = filteredPemasukan.reduce((sum, p) => sum + p.jumlahRumah, 0);
-            csvContent += `\nTOTAL,,,${totalRumah},,${totalPemasukan},\n`;
+            csvContent += `\nTOTAL,,,,${totalRumah},,${totalPemasukan},\n`;
             
             downloadCSV(csvContent, `laporan_jimpitan_${getCurrentDateString()}.csv`);
         }
@@ -1930,6 +2160,41 @@
             // Update statistik pemasukan
             const totalPemasukan = pemasukanData.reduce((sum, p) => sum + p.total, 0);
             document.getElementById('dash-total-pemasukan').textContent = formatRupiah(totalPemasukan);
+            
+            // Update statistik per jenis iuran
+            const statistikPerJenis = getStatistikPerJenis();
+            
+            document.getElementById('dash-harian').textContent = formatRupiah(statistikPerJenis.harian.total);
+            document.getElementById('dash-harian-count').textContent = statistikPerJenis.harian.transaksi + ' transaksi';
+            
+            document.getElementById('dash-mingguan').textContent = formatRupiah(statistikPerJenis.mingguan.total);
+            document.getElementById('dash-mingguan-count').textContent = statistikPerJenis.mingguan.transaksi + ' transaksi';
+            
+            document.getElementById('dash-bulanan').textContent = formatRupiah(statistikPerJenis.bulanan.total);
+            document.getElementById('dash-bulanan-count').textContent = statistikPerJenis.bulanan.transaksi + ' transaksi';
+            
+            document.getElementById('dash-custom').textContent = formatRupiah(statistikPerJenis.custom.total);
+            document.getElementById('dash-custom-count').textContent = statistikPerJenis.custom.transaksi + ' transaksi';
+        }
+        
+        // Fungsi untuk menghitung statistik per jenis
+        function getStatistikPerJenis() {
+            const statistik = {
+                harian: { jumlah: 0, total: 0, transaksi: 0 },
+                mingguan: { jumlah: 0, total: 0, transaksi: 0 },
+                bulanan: { jumlah: 0, total: 0, transaksi: 0 },
+                custom: { jumlah: 0, total: 0, transaksi: 0 }
+            };
+            
+            pemasukanData.forEach(p => {
+                if (statistik[p.jenisIuran]) {
+                    statistik[p.jenisIuran].total += p.total;
+                    statistik[p.jenisIuran].transaksi += 1;
+                    statistik[p.jenisIuran].jumlah += p.jumlahRumah;
+                }
+            });
+            
+            return statistik;
         }
         
         // Update chart
@@ -2020,7 +2285,7 @@
         function exportPetugas() {
             const exportData = {
                 type: 'petugas',
-                version: '1.0',
+                version: '2.0',
                 exportedAt: new Date().toISOString(),
                 data: petugasData
             };
@@ -2031,7 +2296,7 @@
         function exportJadwal() {
             const exportData = {
                 type: 'jadwal',
-                version: '1.0',
+                version: '2.0',
                 exportedAt: new Date().toISOString(),
                 data: jadwalData
             };
@@ -2042,7 +2307,7 @@
         function exportPemasukan() {
             const exportData = {
                 type: 'pemasukan',
-                version: '1.0',
+                version: '2.0',
                 exportedAt: new Date().toISOString(),
                 data: pemasukanData
             };
@@ -2053,7 +2318,7 @@
         function exportAllData() {
             const exportData = {
                 type: 'all',
-                version: '1.0',
+                version: '2.0',
                 exportedAt: new Date().toISOString(),
                 petugas: petugasData,
                 jadwal: jadwalData,
@@ -2220,12 +2485,12 @@
                 return;
             }
             
-            let csvContent = "No,Tanggal,Hari,Jumlah Rumah,Iuran per Rumah,Total Pemasukan,Keterangan\n";
+            let csvContent = "No,Tanggal,Hari,Jenis Iuran,Jumlah Rumah,Iuran per Rumah,Total Pemasukan,Keterangan\n";
             
             pemasukanData.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
             
             pemasukanData.forEach((p, index) => {
-                csvContent += `${index + 1},${p.tanggal},${p.hari},${p.jumlahRumah},${p.iuranPerRumah},${p.total},${p.keterangan}\n`;
+                csvContent += `${index + 1},${p.tanggal},${p.hari},${getJenisIuranNama(p.jenisIuran)},${p.jumlahRumah},${p.iuranPerRumah},${p.total},${p.keterangan}\n`;
             });
             
             downloadCSV(csvContent, `pemasukan_jimpitan_${getCurrentDateString()}.csv`);
@@ -2235,7 +2500,7 @@
         function exportPetugasJSON() {
             const exportData = {
                 type: 'petugas',
-                version: '1.0',
+                version: '2.0',
                 exportedAt: new Date().toISOString(),
                 data: petugasData
             };
@@ -2246,7 +2511,7 @@
         function exportJadwalJSON() {
             const exportData = {
                 type: 'jadwal',
-                version: '1.0',
+                version: '2.0',
                 exportedAt: new Date().toISOString(),
                 data: jadwalData
             };
@@ -2257,7 +2522,7 @@
         function exportPemasukanJSON() {
             const exportData = {
                 type: 'pemasukan',
-                version: '1.0',
+                version: '2.0',
                 exportedAt: new Date().toISOString(),
                 data: pemasukanData
             };
@@ -2268,7 +2533,7 @@
         function exportAllJSON() {
             const exportData = {
                 type: 'all',
-                version: '1.0',
+                version: '2.0',
                 exportedAt: new Date().toISOString(),
                 petugas: petugasData,
                 jadwal: jadwalData,
