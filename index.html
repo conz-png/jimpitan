@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Jimpitan Lengkap - Petugas, Pemasukan & Laporan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2196F3;
+            --primary-light: #64B5F6;
+            --primary-dark: #1976D2;
+            --secondary: #FF9800;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #f44336;
+            --male-color: #2196F3;
+            --female-color: #E91E63;
+            --light: #f9f9f9;
+            --dark: #333;
+            --gray: #e0e0e0;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+            padding: 20px 0;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-img {
+            height: 70px;
+            width: auto;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo-text h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .logo-text p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .info-badge {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Main Content Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--gray);
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            color: var(--primary);
+        }
+
+        /* Tab Styles */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray);
+            margin-bottom: 20px;
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 25px;
+            cursor: pointer;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--gray);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .gender-select {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .gender-option {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid var(--gray);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .gender-option.selected {
+            border-color: var(--primary);
+            background-color: rgba(33, 150, 243, 0.05);
+        }
+
+        .gender-option.male.selected {
+            border-color: var(--male-color);
+            background-color: rgba(33, 150, 243, 0.05);
+        }
+
+        .gender-option.female.selected {
+            border-color: var(--female-color);
+            background-color: rgba(233, 30, 99, 0.05);
+        }
+
+        .gender-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .gender-option.male .gender-icon {
+            color: var(--male-color);
+        }
+
+        .gender-option.female .gender-icon {
+            color: var(--female-color);
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #3d8b40;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e68900;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--gray);
+            margin-top: 15px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background-color: var(--primary);
+            color: white;
+            text-align: left;
+            padding: 15px;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .data-table tr:hover {
+            background-color: #f0f7ff;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-male {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: var(--male-color);
+        }
+
+        .badge-female {
+            background-color: rgba(233, 30, 99, 0.1);
+            color: var(--female-color);
+        }
+
+        .badge-success {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #ff8f00;
+        }
+
+        /* Petugas List */
+        .petugas-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .petugas-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid var(--male-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .petugas-card.female {
+            border-left-color: var(--female-color);
+        }
+
+        .petugas-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .petugas-avatar.male {
+            background-color: var(--male-color);
+        }
+
+        .petugas-avatar.female {
+            background-color: var(--female-color);
+        }
+
+        .petugas-info {
+            flex: 1;
+        }
+
+        .petugas-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .petugas-gender {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        /* Jadwal Styles - Manual */
+        .jadwal-manual-container {
+            margin-top: 20px;
+        }
+
+        .hari-jadwal {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--primary);
+        }
+
+        .hari-jadwal.selasa {
+            border-left-color: var(--female-color);
+        }
+
+        .hari-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .hari-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .hari-kebutuhan {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .petugas-select-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .petugas-select-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Statistik */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .stat-value.male {
+            color: var(--male-color);
+        }
+
+        .stat-value.female {
+            color: var(--female-color);
+        }
+
+        .stat-value.success {
+            color: var(--success);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Pemasukan Form */
+        .pemasukan-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        /* Laporan Filter */
+        .filter-container {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .dashboard-card i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .dashboard-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .dashboard-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 25px 0;
+            margin-top: 30px;
+            color: #666;
+            border-top: 1px solid var(--gray);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            
+            .header-info {
+                width: 100%;
+            }
+            
+            .info-badge {
+                flex: 1;
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .card {
+                padding: 20px 15px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            .pemasukan-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .petugas-select-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-container">
+                    <img src="logo_mld.png" alt="Logo MLD" class="logo-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/70x70/1976D2/FFFFFF?text=MLD';">
+                    <div class="logo-text">
+                        <h1>Sistem Jimpitan MLD</h1>
+                        <p>Pengelolaan Petugas, Pemasukan & Laporan Keuangan</p>
+                    </div>
+                </div>
+                <div class="header-info">
+                    <div class="info-badge">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Iuran: Rp 500/hari</span>
+                    </div>
+                    <div class="info-badge">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span id="current-date">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="main-content">
+            <!-- Left Column -->
+            <div class="left-column">
+                <!-- Tabs Navigation -->
+                <div class="card">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="dashboard">Dashboard</div>
+                        <div class="tab" data-tab="tambah-petugas">Tambah Petugas</div>
+                        <div class="tab" data-tab="daftar-petugas">Daftar Petugas</div>
+                        <div class="tab" data-tab="atur-jadwal">Atur Jadwal Manual</div>
+                        <div class="tab" data-tab="pemasukan">Input Pemasukan</div>
+                        <div class="tab" data-tab="laporan">Laporan Keuangan</div>
+                    </div>
+
+                    <!-- Tab 1: Dashboard -->
+                    <div id="dashboard" class="tab-content active">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h2>
+                            <button class="btn btn-success" onclick="refreshDashboard()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                        
+                        <div class="dashboard-grid">
+                            <div class="dashboard-card">
+                                <i class="fas fa-users"></i>
+                                <div class="dashboard-value" id="dash-total-petugas">0</div>
+                                <div class="dashboard-label">Total Petugas</div>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-male"></i>
+                                <div class="dashboard-value" id="dash-petugas-cowok">0</div>
+                                <div class="dashboard-label">Petugas Laki-laki</div>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-female"></i>
+                                <div class="dashboard-value" id="dash-petugas-cewek">0</div>
+                                <div class="dashboard-label">Petugas Perempuan</div>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-calendar-check"></i>
+                                <div class="dashboard-value" id="dash-hari-aktif">0</div>
+                                <div class="dashboard-label">Hari Aktif</div>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-money-bill"></i>
+                                <div class="dashboard-value" id="dash-total-pemasukan">Rp 0</div>
+                                <div class="dashboard-label">Total Pemasukan</div>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-target"></i>
+                                <div class="dashboard-value" id="dash-target-pemasukan">Rp 0</div>
+                                <div class="dashboard-label">Target Pemasukan</div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" style="margin-top: 20px;">
+                            <h3 class="card-title"><i class="fas fa-chart-line"></i> Pemasukan 7 Hari Terakhir</h3>
+                            <div style="height: 200px; margin-top: 15px; display: flex; align-items: flex-end; gap: 10px; padding: 20px; border: 1px solid var(--gray); border-radius: 8px;">
+                                <!-- Chart bars akan diisi oleh JavaScript -->
+                                <div id="chart-container" style="display: flex; align-items: flex-end; gap: 10px; width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Tambah Petugas -->
+                    <div id="tambah-petugas" class="tab-content">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-user-plus"></i> Tambah Petugas Baru</h2>
+                        </div>
+                        <form id="form-tambah-petugas">
+                            <div class="form-group">
+                                <label for="nama-petugas">Nama Lengkap Petugas</label>
+                                <input type="text" id="nama-petugas" class="form-control" placeholder="Masukkan nama lengkap petugas" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Jenis Kelamin</label>
+                                <div class="gender-select">
+                                    <div class="gender-option male" data-gender="Laki-laki">
+                                        <div class="gender-icon">
+                                            <i class="fas fa-male"></i>
+                                        </div>
+                                        <div>Laki-laki</div>
+                                    </div>
+                                    <div class="gender-option female" data-gender="Perempuan">
+                                        <div class="gender-icon">
+                                            <i class="fas fa-female"></i>
+                                        </div>
+                                        <div>Perempuan</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="jenis-kelamin" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="alamat-petugas">Alamat (RT/RW)</label>
+                                <input type="text" id="alamat-petugas" class="form-control" placeholder="Contoh: RT 05 RW 03" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="no-telepon">Nomor Telepon</label>
+                                <input type="tel" id="no-telepon" class="form-control" placeholder="081234567890" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Simpan Petugas
+                            </button>
+                            <button type="reset" class="btn btn-secondary">
+                                <i class="fas fa-redo"></i> Reset Form
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Tab 3: Daftar Petugas -->
+                    <div id="daftar-petugas" class="tab-content">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-list"></i> Daftar Seluruh Petugas</h2>
+                            <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" id="filter-semua">Semua</button>
+                                <button class="btn btn-primary btn-sm" id="filter-cowok">Laki-laki</button>
+                                <button class="btn btn-primary btn-sm" id="filter-cewek">Perempuan</button>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Nama Petugas</th>
+                                        <th>Jenis Kelamin</th>
+                                        <th>Alamat</th>
+                                        <th>Telepon</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="daftar-petugas-body">
+                                    <!-- Data akan diisi oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 4: Atur Jadwal Manual -->
+                    <div id="atur-jadwal" class="tab-content">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-calendar-alt"></i> Atur Jadwal Petugas Manual</h2>
+                            <div>
+                                <button class="btn btn-success" id="simpan-jadwal">
+                                    <i class="fas fa-save"></i> Simpan Jadwal
+                                </button>
+                                <button class="btn btn-primary" id="export-jadwal">
+                                    <i class="fas fa-file-export"></i> Export CSV
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="jadwal-manual-container" id="jadwal-manual-container">
+                            <!-- Jadwal manual akan diisi oleh JavaScript -->
+                        </div>
+                        
+                        <div class="card" style="margin-top: 20px;">
+                            <h3 class="card-title"><i class="fas fa-info-circle"></i> Aturan Jadwal</h3>
+                            <ul style="padding-left: 20px; margin-top: 10px;">
+                                <li><strong>Senin, Rabu, Kamis, Jumat, Sabtu, Minggu:</strong> Pilih 3 petugas laki-laki</li>
+                                <li><strong>Selasa:</strong> Pilih 7 petugas perempuan (hanya perempuan)</li>
+                                <li>Iuran per rumah: <strong>Rp 500 per hari</strong></li>
+                                <li>Klik <strong>Simpan Jadwal</strong> untuk menyimpan perubahan</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tab 5: Input Pemasukan -->
+                    <div id="pemasukan" class="tab-content">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-money-check-alt"></i> Input Pemasukan Harian</h2>
+                        </div>
+                        
+                        <form id="form-pemasukan">
+                            <div class="pemasukan-form">
+                                <div class="form-group">
+                                    <label for="tanggal-pemasukan">Tanggal</label>
+                                    <input type="date" id="tanggal-pemasukan" class="form-control" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="hari-pemasukan">Hari</label>
+                                    <select id="hari-pemasukan" class="form-control" required>
+                                        <option value="">Pilih Hari</option>
+                                        <option value="Senin">Senin</option>
+                                        <option value="Selasa">Selasa</option>
+                                        <option value="Rabu">Rabu</option>
+                                        <option value="Kamis">Kamis</option>
+                                        <option value="Jumat">Jumat</option>
+                                        <option value="Sabtu">Sabtu</option>
+                                        <option value="Minggu">Minggu</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="jumlah-rumah">Jumlah Rumah</label>
+                                    <input type="number" id="jumlah-rumah" class="form-control" min="1" value="50" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="total-pemasukan">Total Pemasukan (Otomatis)</label>
+                                    <div class="form-row">
+                                        <input type="text" id="total-pemasukan" class="form-control" value="Rp 25.000" readonly style="flex: 1;">
+                                        <span class="btn btn-secondary" onclick="hitungPemasukan()">
+                                            <i class="fas fa-calculator"></i> Hitung
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="keterangan-pemasukan">Keterangan (Opsional)</label>
+                                <textarea id="keterangan-pemasukan" class="form-control" rows="3" placeholder="Tambahkan keterangan jika perlu"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Simpan Pemasukan
+                            </button>
+                            <button type="reset" class="btn btn-secondary">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                        </form>
+                        
+                        <div class="table-responsive" style="margin-top: 30px;">
+                            <h3 class="card-title" style="margin-bottom: 15px;"><i class="fas fa-history"></i> Pemasukan Terakhir</h3>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Hari</th>
+                                        <th>Jumlah Rumah</th>
+                                        <th>Total Pemasukan</th>
+                                        <th>Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="riwayat-pemasukan-body">
+                                    <!-- Data akan diisi oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 6: Laporan Keuangan -->
+                    <div id="laporan" class="tab-content">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-chart-bar"></i> Laporan Keuangan</h2>
+                            <div>
+                                <button class="btn btn-success" id="export-laporan-csv">
+                                    <i class="fas fa-file-csv"></i> Export CSV
+                                </button>
+                                <button class="btn btn-primary" id="print-laporan">
+                                    <i class="fas fa-print"></i> Print
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-container">
+                            <h3 style="margin-bottom: 15px;">Filter Laporan</h3>
+                            <div class="filter-row">
+                                <div class="form-group" style="flex: 1;">
+                                    <label for="filter-bulan">Bulan</label>
+                                    <select id="filter-bulan" class="form-control">
+                                        <option value="semua">Semua Bulan</option>
+                                        <option value="1">Januari</option>
+                                        <option value="2">Februari</option>
+                                        <option value="3">Maret</option>
+                                        <option value="4">April</option>
+                                        <option value="5">Mei</option>
+                                        <option value="6">Juni</option>
+                                        <option value="7">Juli</option>
+                                        <option value="8">Agustus</option>
+                                        <option value="9">September</option>
+                                        <option value="10">Oktober</option>
+                                        <option value="11">November</option>
+                                        <option value="12">Desember</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group" style="flex: 1;">
+                                    <label for="filter-tahun">Tahun</label>
+                                    <select id="filter-tahun" class="form-control">
+                                        <!-- Tahun akan diisi oleh JavaScript -->
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group" style="flex: 1;">
+                                    <label for="filter-hari">Hari</label>
+                                    <select id="filter-hari" class="form-control">
+                                        <option value="semua">Semua Hari</option>
+                                        <option value="Senin">Senin</option>
+                                        <option value="Selasa">Selasa</option>
+                                        <option value="Rabu">Rabu</option>
+                                        <option value="Kamis">Kamis</option>
+                                        <option value="Jumat">Jumat</option>
+                                        <option value="Sabtu">Sabtu</option>
+                                        <option value="Minggu">Minggu</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <button class="btn btn-primary" id="filter-apply">
+                                        <i class="fas fa-filter"></i> Terapkan Filter
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-label">Total Pemasukan</div>
+                                <div class="stat-value success" id="laporan-total">Rp 0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Rata-rata Harian</div>
+                                <div class="stat-value" id="laporan-rata">Rp 0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Jumlah Transaksi</div>
+                                <div class="stat-value" id="laporan-jumlah">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Rumah Tercover</div>
+                                <div class="stat-value" id="laporan-rumah">0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive" style="margin-top: 20px;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Tanggal</th>
+                                        <th>Hari</th>
+                                        <th>Jumlah Rumah</th>
+                                        <th>Iuran per Rumah</th>
+                                        <th>Total Pemasukan</th>
+                                        <th>Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="laporan-body">
+                                    <!-- Data akan diisi oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+                <!-- Statistik Cepat -->
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-chart-pie"></i> Statistik Cepat</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Petugas Laki-laki</div>
+                            <div class="stat-value male" id="stat-cowok">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Petugas Perempuan</div>
+                            <div class="stat-value female" id="stat-cewek">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Pemasukan Hari Ini</div>
+                            <div class="stat-value success" id="stat-hari-ini">Rp 0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Pemasukan Bulan Ini</div>
+                            <div class="stat-value" id="stat-bulan-ini">Rp 0</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background-color: #f0f7ff; border-radius: 8px;">
+                        <p style="font-weight: 600; margin-bottom: 8px;"><i class="fas fa-calendar-day"></i> Hari Ini: <span id="info-hari-ini">-</span></p>
+                        <p style="margin-top: 8px; font-size: 0.9rem;">Kebutuhan petugas: <span id="info-kebutuhan">-</span></p>
+                        <p style="margin-top: 5px; font-size: 0.9rem;">Iuran per rumah: <strong>Rp 500</strong></p>
+                    </div>
+                </div>
+
+                <!-- Petugas Terbaru -->
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-user-plus"></i> Petugas Terbaru</h2>
+                    <div id="petugas-terbaru-list" style="margin-top: 15px;">
+                        <!-- Data akan diisi oleh JavaScript -->
+                        <p style="text-align: center; color: #999; padding: 20px;">Belum ada petugas</p>
+                    </div>
+                </div>
+
+                <!-- Jadwal Hari Ini -->
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-calendar-day"></i> Jadwal Hari Ini</h2>
+                    <div id="jadwal-hari-ini" style="margin-top: 15px;">
+                        <!-- Data akan diisi oleh JavaScript -->
+                        <p style="text-align: center; color: #999; padding: 20px;">Belum ada jadwal untuk hari ini</p>
+                    </div>
+                </div>
+
+                <!-- Catatan Penting -->
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-exclamation-circle"></i> Catatan Penting</h2>
+                    <div style="margin-top: 15px;">
+                        <div style="padding: 12px; background-color: #fff3e0; border-radius: 8px; margin-bottom: 10px;">
+                            <p style="font-weight: 600;"><i class="fas fa-calendar-alt"></i> Sistem Jadwal</p>
+                            <p style="margin-top: 5px; font-size: 0.9rem;">Atur jadwal manual di tab "Atur Jadwal Manual". Selasa khusus petugas perempuan.</p>
+                        </div>
+                        
+                        <div style="padding: 12px; background-color: #e8f5e9; border-radius: 8px;">
+                            <p style="font-weight: 600;"><i class="fas fa-calculator"></i> Perhitungan</p>
+                            <p style="margin-top: 5px; font-size: 0.9rem;">Total = Jumlah Rumah × Rp 500. Pastikan data akurat.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Sistem Jimpitan MLD. Data tersimpan di browser Anda.</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                <i class="fas fa-download"></i> Ekspor data CSV tersedia di menu Laporan
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Data storage
+        let petugas = JSON.parse(localStorage.getItem('petugas_jimpitan')) || [];
+        let pemasukan = JSON.parse(localStorage.getItem('pemasukan_jimpitan')) || [];
+        let jadwalPetugas = JSON.parse(localStorage.getItem('jadwal_petugas')) || {};
+        
+        // Hari dalam seminggu
+        const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        
+        // Inisialisasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            initForm();
+            initTabs();
+            initFilterButtons();
+            initJadwalManual();
+            initPemasukanForm();
+            initLaporan();
+            setCurrentDate();
+            renderDaftarPetugas();
+            renderJadwalManual();
+            renderRiwayatPemasukan();
+            updateStatistik();
+            renderPetugasTerbaru();
+            renderPemasukanTerbaru();
+            renderJadwalHariIni();
+            updateDashboard();
+            
+            // Set default date untuk input pemasukan
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('tanggal-pemasukan').value = today;
+            
+            // Set hari otomatis berdasarkan tanggal
+            document.getElementById('tanggal-pemasukan').addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                const dayIndex = selectedDate.getDay();
+                document.getElementById('hari-pemasukan').value = hari[dayIndex];
+            });
+            
+            // Set hari berdasarkan tanggal saat ini
+            const currentDayIndex = new Date().getDay();
+            document.getElementById('hari-pemasukan').value = hari[currentDayIndex];
+        });
+        
+        // Set tanggal hari ini
+        function setCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date').textContent = now.toLocaleDateString('id-ID', options);
+            
+            // Update info hari ini
+            const hariIni = hari[now.getDay()];
+            document.getElementById('info-hari-ini').textContent = hariIni;
+            
+            // Update kebutuhan hari ini
+            const kebutuhan = (hariIni === 'Selasa') ? '7 Petugas Perempuan' : '3 Petugas Laki-laki';
+            document.getElementById('info-kebutuhan').textContent = kebutuhan;
+        }
+        
+        // Inisialisasi form tambah petugas
+        function initForm() {
+            const form = document.getElementById('form-tambah-petugas');
+            const genderOptions = document.querySelectorAll('.gender-option');
+            const genderInput = document.getElementById('jenis-kelamin');
+            
+            // Pilih jenis kelamin
+            genderOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    genderOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    genderInput.value = this.getAttribute('data-gender');
+                });
+            });
+            
+            // Handle submit form
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const nama = document.getElementById('nama-petugas').value;
+                const jenisKelamin = genderInput.value;
+                const alamat = document.getElementById('alamat-petugas').value;
+                const telepon = document.getElementById('no-telepon').value;
+                
+                if (!nama || !jenisKelamin || !alamat || !telepon) {
+                    alert('Semua field wajib diisi!');
+                    return;
+                }
+                
+                // Tambahkan petugas baru
+                const petugasBaru = {
+                    id: Date.now(),
+                    nama: nama,
+                    jenisKelamin: jenisKelamin,
+                    alamat: alamat,
+                    telepon: telepon,
+                    tanggalDaftar: new Date().toISOString().split('T')[0]
+                };
+                
+                petugas.push(petugasBaru);
+                localStorage.setItem('petugas_jimpitan', JSON.stringify(petugas));
+                
+                // Reset form
+                form.reset();
+                genderOptions.forEach(opt => opt.classList.remove('selected'));
+                genderInput.value = '';
+                
+                // Update tampilan
+                renderDaftarPetugas();
+                renderJadwalManual(); // Refresh dropdown di jadwal manual
+                updateStatistik();
+                renderPetugasTerbaru();
+                updateDashboard();
+                
+                // Tampilkan konfirmasi
+                alert(`Petugas "${nama}" berhasil ditambahkan!`);
+            });
+        }
+        
+        // Inisialisasi tabs
+        function initTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Hapus kelas active dari semua tab dan konten
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Tambahkan kelas active ke tab yang diklik
+                    this.classList.add('active');
+                    
+                    // Tampilkan konten yang sesuai
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // Jika tab laporan, update laporan
+                    if (tabId === 'laporan') {
+                        renderLaporan();
+                    }
+                });
+            });
+        }
+        
+        // Inisialisasi filter untuk daftar petugas
+        function initFilterButtons() {
+            document.getElementById('filter-semua').addEventListener('click', function() {
+                renderDaftarPetugas('semua');
+            });
+            
+            document.getElementById('filter-cowok').addEventListener('click', function() {
+                renderDaftarPetugas('Laki-laki');
+            });
+            
+            document.getElementById('filter-cewek').addEventListener('click', function() {
+                renderDaftarPetugas('Perempuan');
+            });
+        }
+        
+        // Render daftar petugas
+        function renderDaftarPetugas(filter = 'semua') {
+            const tbody = document.getElementById('daftar-petugas-body');
+            tbody.innerHTML = '';
+            
+            // Filter petugas
+            let petugasFiltered = petugas;
+            if (filter !== 'semua') {
+                petugasFiltered = petugas.filter(p => p.jenisKelamin === filter);
+            }
+            
+            if (petugasFiltered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 30px;">
+                            <i class="fas fa-users-slash" style="font-size: 2rem; color: #ccc; margin-bottom: 10px; display: block;"></i>
+                            <p>Tidak ada petugas yang ditemukan</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Render tabel
+            petugasFiltered.forEach((p, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><strong>${p.nama}</strong></td>
+                    <td><span class="badge ${p.jenisKelamin === 'Laki-laki' ? 'badge-male' : 'badge-female'}">${p.jenisKelamin}</span></td>
+                    <td>${p.alamat}</td>
+                    <td>${p.telepon}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="hapusPetugas(${p.id})">
+                            <i class="fas fa-trash"></i> Hapus
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Hapus petugas
+        function hapusPetugas(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus petugas ini?')) {
+                petugas = petugas.filter(p => p.id !== id);
+                localStorage.setItem('petugas_jimpitan', JSON.stringify(petugas));
+                renderDaftarPetugas();
+                renderJadwalManual(); // Refresh dropdown di jadwal manual
+                updateStatistik();
+                renderPetugasTerbaru();
+                updateDashboard();
+                alert('Petugas berhasil dihapus!');
+            }
+        }
+        
+        // Update statistik
+        function updateStatistik() {
+            const total = petugas.length;
+            const cowok = petugas.filter(p => p.jenisKelamin === 'Laki-laki').length;
+            const cewek = petugas.filter(p => p.jenisKelamin === 'Perempuan').length;
+            
+            document.getElementById('stat-cowok').textContent = cowok;
+            document.getElementById('stat-cewek').textContent = cewek;
+            
+            // Hitung pemasukan hari ini
+            const today = new Date().toISOString().split('T')[0];
+            const pemasukanHariIni = pemasukan.filter(p => p.tanggal === today);
+            let totalHariIni = 0;
+            pemasukanHariIni.forEach(p => {
+                totalHariIni += p.total;
+            });
+            document.getElementById('stat-hari-ini').textContent = formatRupiah(totalHariIni);
+            
+            // Hitung pemasukan bulan ini
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentYear = now.getFullYear();
+            const pemasukanBulanIni = pemasukan.filter(p => {
+                const date = new Date(p.tanggal);
+                return date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear;
+            });
+            let totalBulanIni = 0;
+            pemasukanBulanIni.forEach(p => {
+                totalBulanIni += p.total;
+            });
+            document.getElementById('stat-bulan-ini').textContent = formatRupiah(totalBulanIni);
+        }
+        
+        // Format ke Rupiah
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+        }
+        
+        // Render petugas terbaru
+        function renderPetugasTerbaru() {
+            const container = document.getElementById('petugas-terbaru-list');
+            
+            if (petugas.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">Belum ada petugas terdaftar</p>`;
+                return;
+            }
+            
+            // Ambil 3 petugas terbaru
+            const petugasTerbaru = [...petugas]
+                .sort((a, b) => new Date(b.tanggalDaftar) - new Date(a.tanggalDaftar))
+                .slice(0, 3);
+            
+            container.innerHTML = '';
+            petugasTerbaru.forEach(p => {
+                const card = document.createElement('div');
+                card.className = `petugas-card ${p.jenisKelamin === 'Perempuan' ? 'female' : ''}`;
+                card.style.marginBottom = '10px';
+                card.innerHTML = `
+                    <div class="petugas-avatar ${p.jenisKelamin === 'Laki-laki' ? 'male' : 'female'}">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="petugas-info">
+                        <div class="petugas-name">${p.nama}</div>
+                        <div class="petugas-gender">${p.jenisKelamin}</div>
+                        <div style="font-size: 0.8rem; color: #777; margin-top: 5px;">${p.alamat}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        // Inisialisasi jadwal manual
+        function initJadwalManual() {
+            document.getElementById('simpan-jadwal').addEventListener('click', function() {
+                simpanJadwalManual();
+            });
+            
+            document.getElementById('export-jadwal').addEventListener('click', function() {
+                exportJadwalCSV();
+            });
+        }
+        
+        // Render jadwal manual
+        function renderJadwalManual() {
+            const container = document.getElementById('jadwal-manual-container');
+            container.innerHTML = '';
+            
+            // Filter petugas berdasarkan jenis kelamin
+            const petugasLaki = petugas.filter(p => p.jenisKelamin === 'Laki-laki');
+            const petugasPerempuan = petugas.filter(p => p.jenisKelamin === 'Perempuan');
+            
+            // Loop untuk setiap hari
+            hari.forEach(hariNama => {
+                const isSelasa = hariNama === 'Selasa';
+                const kebutuhan = isSelasa ? 'Pilih 7 petugas perempuan' : 'Pilih 3 petugas laki-laki';
+                const jumlahPilihan = isSelasa ? 7 : 3;
+                const petugasTersedia = isSelasa ? petugasPerempuan : petugasLaki;
+                
+                const jadwalItem = document.createElement('div');
+                jadwalItem.className = `hari-jadwal ${isSelasa ? 'selasa' : ''}`;
+                
+                // Buat pilihan petugas
+                let selectOptions = '';
+                petugasTersedia.forEach(p => {
+                    selectOptions += `<option value="${p.id}">${p.nama} (${p.alamat})</option>`;
+                });
+                
+                // Buat dropdown untuk setiap pilihan
+                let selectElements = '';
+                for (let i = 1; i <= jumlahPilihan; i++) {
+                    // Cek apakah sudah ada jadwal yang disimpan
+                    const petugasTerpilih = jadwalPetugas[hariNama] && jadwalPetugas[hariNama][i-1] 
+                        ? jadwalPetugas[hariNama][i-1].id 
+                        : '';
+                    
+                    selectElements += `
+                        <div class="petugas-select-item">
+                            <label>Petugas ${i}:</label>
+                            <select class="form-control petugas-select" data-hari="${hariNama}" data-index="${i-1}">
+                                <option value="">Pilih petugas...</option>
+                                ${selectOptions}
+                            </select>
+                        </div>
+                    `;
+                }
+                
+                jadwalItem.innerHTML = `
+                    <div class="hari-header">
+                        <div class="hari-title">${hariNama}</div>
+                        <div class="hari-kebutuhan">${kebutuhan}</div>
+                    </div>
+                    <div class="petugas-select-container">
+                        ${selectElements}
+                    </div>
+                `;
+                
+                container.appendChild(jadwalItem);
+            });
+            
+            // Set nilai dropdown dari data yang sudah disimpan
+            setTimeout(() => {
+                hari.forEach(hariNama => {
+                    if (jadwalPetugas[hariNama]) {
+                        jadwalPetugas[hariNama].forEach((petugas, index) => {
+                            const select = document.querySelector(`select[data-hari="${hariNama}"][data-index="${index}"]`);
+                            if (select) {
+                                select.value = petugas.id;
+                            }
+                        });
+                    }
+                });
+            }, 100);
+        }
+        
+        // Simpan jadwal manual
+        function simpanJadwalManual() {
+            // Reset jadwal petugas
+            jadwalPetugas = {};
+            
+            // Loop untuk setiap hari
+            hari.forEach(hariNama => {
+                jadwalPetugas[hariNama] = [];
+                
+                // Cari semua select untuk hari ini
+                const selects = document.querySelectorAll(`select[data-hari="${hariNama}"]`);
+                
+                selects.forEach((select, index) => {
+                    const petugasId = parseInt(select.value);
+                    if (petugasId) {
+                        // Cari petugas berdasarkan ID
+                        const petugasData = petugas.find(p => p.id === petugasId);
+                        if (petugasData) {
+                            jadwalPetugas[hariNama].push({
+                                id: petugasData.id,
+                                nama: petugasData.nama,
+                                jenisKelamin: petugasData.jenisKelamin,
+                                alamat: petugasData.alamat
+                            });
+                        }
+                    }
+                });
+            });
+            
+            // Simpan ke localStorage
+            localStorage.setItem('jadwal_petugas', JSON.stringify(jadwalPetugas));
+            
+            // Update jadwal hari ini
+            renderJadwalHariIni();
+            
+            alert('Jadwal berhasil disimpan!');
+        }
+        
+        // Render jadwal hari ini
+        function renderJadwalHariIni() {
+            const container = document.getElementById('jadwal-hari-ini');
+            const hariIni = hari[new Date().getDay()];
+            
+            if (!jadwalPetugas[hariIni] || jadwalPetugas[hariIni].length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">Belum ada jadwal untuk hari ini</p>`;
+                return;
+            }
+            
+            container.innerHTML = '';
+            jadwalPetugas[hariIni].forEach((p, index) => {
+                const item = document.createElement('div');
+                item.style.padding = '10px';
+                item.style.borderBottom = '1px solid #eee';
+                item.style.display = 'flex';
+                item.style.alignItems = 'center';
+                item.style.gap = '10px';
+                
+                item.innerHTML = `
+                    <div class="petugas-avatar ${p.jenisKelamin === 'Laki-laki' ? 'male' : 'female'}" style="width: 35px; height: 35px; font-size: 1rem;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">${p.nama}</div>
+                        <div style="font-size: 0.8rem; color: #666;">${p.jenisKelamin}</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        // Export jadwal ke CSV
+        function exportJadwalCSV() {
+            if (Object.keys(jadwalPetugas).length === 0) {
+                alert('Belum ada jadwal untuk diexport. Atur jadwal terlebih dahulu.');
+                return;
+            }
+            
+            let csvContent = "Hari,Kebutuhan Petugas,Nama,Jenis Kelamin,Alamat\n";
+            
+            hari.forEach(hariNama => {
+                if (jadwalPetugas[hariNama] && jadwalPetugas[hariNama].length > 0) {
+                    jadwalPetugas[hariNama].forEach(petugas => {
+                        csvContent += `${hariNama},${hariNama === 'Selasa' ? '7 Perempuan' : '3 Laki-laki'},${petugas.nama},${petugas.jenisKelamin},${petugas.alamat}\n`;
+                    });
+                } else {
+                    csvContent += `${hariNama},${hariNama === 'Selasa' ? '7 Perempuan' : '3 Laki-laki'},Belum ada data,-,-\n`;
+                }
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `jadwal_petugas_manual_${new Date().toISOString().slice(0,10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            alert('Jadwal berhasil diexport ke CSV!');
+        }
+        
+        // Inisialisasi form pemasukan
+        function initPemasukanForm() {
+            const form = document.getElementById('form-pemasukan');
+            
+            // Hitung pemasukan otomatis
+            document.getElementById('jumlah-rumah').addEventListener('input', hitungPemasukan);
+            
+            // Handle submit form
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const tanggal = document.getElementById('tanggal-pemasukan').value;
+                const hari = document.getElementById('hari-pemasukan').value;
+                const jumlahRumah = parseInt(document.getElementById('jumlah-rumah').value);
+                const total = parseInt(document.getElementById('total-pemasukan').value.replace(/\D/g, ''));
+                const keterangan = document.getElementById('keterangan-pemasukan').value;
+                
+                if (!tanggal || !hari || !jumlahRumah || !total) {
+                    alert('Data tidak lengkap!');
+                    return;
+                }
+                
+                // Tambahkan pemasukan baru
+                const pemasukanBaru = {
+                    id: Date.now(),
+                    tanggal: tanggal,
+                    hari: hari,
+                    jumlahRumah: jumlahRumah,
+                    iuranPerRumah: 500,
+                    total: total,
+                    keterangan: keterangan || '-'
+                };
+                
+                pemasukan.push(pemasukanBaru);
+                localStorage.setItem('pemasukan_jimpitan', JSON.stringify(pemasukan));
+                
+                // Reset form
+                form.reset();
+                
+                // Set default values
+                document.getElementById('tanggal-pemasukan').value = new Date().toISOString().split('T')[0];
+                const currentDayIndex = new Date().getDay();
+                document.getElementById('hari-pemasukan').value = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][currentDayIndex];
+                document.getElementById('jumlah-rumah').value = 50;
+                hitungPemasukan();
+                
+                // Update tampilan
+                renderRiwayatPemasukan();
+                renderPemasukanTerbaru();
+                updateStatistik();
+                updateDashboard();
+                
+                // Tampilkan konfirmasi
+                alert(`Pemasukan sebesar ${formatRupiah(total)} berhasil disimpan!`);
+            });
+        }
+        
+        // Hitung pemasukan
+        function hitungPemasukan() {
+            const jumlahRumah = parseInt(document.getElementById('jumlah-rumah').value) || 0;
+            const total = jumlahRumah * 500;
+            document.getElementById('total-pemasukan').value = formatRupiah(total);
+        }
+        
+        // Render riwayat pemasukan
+        function renderRiwayatPemasukan() {
+            const tbody = document.getElementById('riwayat-pemasukan-body');
+            tbody.innerHTML = '';
+            
+            if (pemasukan.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 30px;">
+                            <i class="fas fa-file-invoice-dollar" style="font-size: 2rem; color: #ccc; margin-bottom: 10px; display: block;"></i>
+                            <p>Belum ada data pemasukan</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Ambil 5 pemasukan terbaru
+            const riwayatTerbaru = [...pemasukan]
+                .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal))
+                .slice(0, 5);
+            
+            riwayatTerbaru.forEach(p => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formatTanggal(p.tanggal)}</td>
+                    <td>${p.hari}</td>
+                    <td>${p.jumlahRumah} rumah</td>
+                    <td>${formatRupiah(p.total)}</td>
+                    <td>${p.keterangan}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Render pemasukan terbaru
+        function renderPemasukanTerbaru() {
+            // Fungsi ini sudah dihapus karena tidak ada elemen dengan id pemasukan-terbaru-list
+            // Dipertahankan untuk kompatibilitas
+        }
+        
+        // Format tanggal pendek
+        function formatTanggal(tanggalString) {
+            const tanggal = new Date(tanggalString);
+            return tanggal.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+        
+        // Inisialisasi laporan
+        function initLaporan() {
+            // Isi pilihan tahun
+            const tahunSelect = document.getElementById('filter-tahun');
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear - 2; year <= currentYear + 2; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (year === currentYear) option.selected = true;
+                tahunSelect.appendChild(option);
+            }
+            
+            // Event listener untuk filter
+            document.getElementById('filter-apply').addEventListener('click', renderLaporan);
+            document.getElementById('export-laporan-csv').addEventListener('click', exportLaporanCSV);
+            document.getElementById('print-laporan').addEventListener('click', printLaporan);
+        }
+        
+        // Render laporan
+        function renderLaporan() {
+            const bulan = document.getElementById('filter-bulan').value;
+            const tahun = document.getElementById('filter-tahun').value;
+            const hari = document.getElementById('filter-hari').value;
+            
+            const tbody = document.getElementById('laporan-body');
+            tbody.innerHTML = '';
+            
+            // Filter data pemasukan
+            let filteredPemasukan = pemasukan;
+            
+            if (bulan !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => {
+                    const date = new Date(p.tanggal);
+                    return (date.getMonth() + 1) == bulan;
+                });
+            }
+            
+            if (tahun !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => {
+                    const date = new Date(p.tanggal);
+                    return date.getFullYear() == tahun;
+                });
+            }
+            
+            if (hari !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => p.hari === hari);
+            }
+            
+            // Urutkan berdasarkan tanggal terbaru
+            filteredPemasukan.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+            
+            if (filteredPemasukan.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px;">
+                            <i class="fas fa-chart-bar" style="font-size: 2rem; color: #ccc; margin-bottom: 10px; display: block;"></i>
+                            <p>Tidak ada data pemasukan untuk filter ini</p>
+                        </td>
+                    </tr>
+                `;
+                
+                // Reset statistik
+                document.getElementById('laporan-total').textContent = 'Rp 0';
+                document.getElementById('laporan-rata').textContent = 'Rp 0';
+                document.getElementById('laporan-jumlah').textContent = '0';
+                document.getElementById('laporan-rumah').textContent = '0';
+                return;
+            }
+            
+            // Hitung statistik
+            let totalPemasukan = 0;
+            let totalRumah = 0;
+            
+            filteredPemasukan.forEach((p, index) => {
+                totalPemasukan += p.total;
+                totalRumah += p.jumlahRumah;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${formatTanggal(p.tanggal)}</td>
+                    <td>${p.hari}</td>
+                    <td>${p.jumlahRumah} rumah</td>
+                    <td>${formatRupiah(p.iuranPerRumah)}</td>
+                    <td>${formatRupiah(p.total)}</td>
+                    <td>${p.keterangan}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Update statistik
+            const rataRata = totalPemasukan / filteredPemasukan.length;
+            
+            document.getElementById('laporan-total').textContent = formatRupiah(totalPemasukan);
+            document.getElementById('laporan-rata').textContent = formatRupiah(rataRata);
+            document.getElementById('laporan-jumlah').textContent = filteredPemasukan.length;
+            document.getElementById('laporan-rumah').textContent = totalRumah;
+        }
+        
+        // Export laporan ke CSV
+        function exportLaporanCSV() {
+            if (pemasukan.length === 0) {
+                alert('Belum ada data pemasukan untuk diexport.');
+                return;
+            }
+            
+            const bulan = document.getElementById('filter-bulan').value;
+            const tahun = document.getElementById('filter-tahun').value;
+            const hari = document.getElementById('filter-hari').value;
+            
+            // Filter data pemasukan
+            let filteredPemasukan = pemasukan;
+            
+            if (bulan !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => {
+                    const date = new Date(p.tanggal);
+                    return (date.getMonth() + 1) == bulan;
+                });
+            }
+            
+            if (tahun !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => {
+                    const date = new Date(p.tanggal);
+                    return date.getFullYear() == tahun;
+                });
+            }
+            
+            if (hari !== 'semua') {
+                filteredPemasukan = filteredPemasukan.filter(p => p.hari === hari);
+            }
+            
+            if (filteredPemasukan.length === 0) {
+                alert('Tidak ada data untuk filter yang dipilih.');
+                return;
+            }
+            
+            // Urutkan berdasarkan tanggal terbaru
+            filteredPemasukan.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+            
+            let csvContent = "No,Tanggal,Hari,Jumlah Rumah,Iuran per Rumah,Total Pemasukan,Keterangan\n";
+            
+            filteredPemasukan.forEach((p, index) => {
+                csvContent += `${index + 1},${p.tanggal},${p.hari},${p.jumlahRumah},${p.iuranPerRumah},${p.total},${p.keterangan}\n`;
+            });
+            
+            // Tambahkan total
+            const totalPemasukan = filteredPemasukan.reduce((sum, p) => sum + p.total, 0);
+            const totalRumah = filteredPemasukan.reduce((sum, p) => sum + p.jumlahRumah, 0);
+            csvContent += `\nTOTAL,,,${totalRumah},,${totalPemasukan},\n`;
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `laporan_jimpitan_${new Date().toISOString().slice(0,10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            alert(`Laporan ${filteredPemasukan.length} data berhasil diexport ke CSV!`);
+        }
+        
+        // Print laporan
+        function printLaporan() {
+            window.print();
+        }
+        
+        // Update dashboard
+        function updateDashboard() {
+            // Update statistik petugas
+            const totalPetugas = petugas.length;
+            const petugasCowok = petugas.filter(p => p.jenisKelamin === 'Laki-laki').length;
+            const petugasCewek = petugas.filter(p => p.jenisKelamin === 'Perempuan').length;
+            
+            document.getElementById('dash-total-petugas').textContent = totalPetugas;
+            document.getElementById('dash-petugas-cowok').textContent = petugasCowok;
+            document.getElementById('dash-petugas-cewek').textContent = petugasCewek;
+            
+            // Update statistik pemasukan
+            const totalPemasukan = pemasukan.reduce((sum, p) => sum + p.total, 0);
+            const hariAktif = [...new Set(pemasukan.map(p => p.tanggal))].length;
+            const targetPemasukan = hariAktif * 50 * 500; // Asumsi 50 rumah per hari
+            
+            document.getElementById('dash-total-pemasukan').textContent = formatRupiah(totalPemasukan);
+            document.getElementById('dash-hari-aktif').textContent = hariAktif;
+            document.getElementById('dash-target-pemasukan').textContent = formatRupiah(targetPemasukan);
+            
+            // Update chart
+            updateChart();
+        }
+        
+        // Update chart
+        function updateChart() {
+            const container = document.getElementById('chart-container');
+            container.innerHTML = '';
+            
+            // Ambil data 7 hari terakhir
+            const today = new Date();
+            const last7Days = [];
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                last7Days.push(date.toISOString().split('T')[0]);
+            }
+            
+            // Cari pemasukan untuk setiap hari
+            const dataChart = last7Days.map(date => {
+                const pemasukanHari = pemasukan.filter(p => p.tanggal === date);
+                const totalHari = pemasukanHari.reduce((sum, p) => sum + p.total, 0);
+                return {
+                    date: date,
+                    total: totalHari,
+                    day: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'][new Date(date).getDay()]
+                };
+            });
+            
+            // Cari nilai maksimum untuk skala
+            const maxValue = Math.max(...dataChart.map(d => d.total), 50000);
+            
+            // Render chart bars
+            dataChart.forEach(data => {
+                const barHeight = (data.total / maxValue) * 150;
+                const bar = document.createElement('div');
+                bar.style.display = 'flex';
+                bar.style.flexDirection = 'column';
+                bar.style.alignItems = 'center';
+                bar.style.flex = 1;
+                
+                bar.innerHTML = `
+                    <div style="width: 30px; height: ${barHeight}px; background-color: ${data.total > 0 ? 'var(--success)' : '#e0e0e0'}; border-radius: 5px 5px 0 0;"></div>
+                    <div style="margin-top: 5px; font-size: 0.8rem; font-weight: 600;">${data.day}</div>
+                    <div style="margin-top: 3px; font-size: 0.7rem; color: #666;">${formatRupiah(data.total).replace('Rp', '').trim()}</div>
+                `;
+                
+                container.appendChild(bar);
+            });
+        }
+        
+        // Refresh dashboard
+        function refreshDashboard() {
+            updateDashboard();
+            alert('Dashboard diperbarui!');
+        }
+    </script>
+</body>
+</html>
