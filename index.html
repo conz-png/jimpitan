@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Jimpitan MLD - Lengkap dengan Pemasukan</title>
+    <title>Sistem Jimpitan MLD - Rolling Jadwal & Iuran Fleksibel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -91,7 +91,7 @@
             border-radius: 10px;
         }
 
-        /* Modal */
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -114,8 +114,10 @@
             border-radius: 15px;
             padding: 30px;
             width: 90%;
-            max-width: 500px;
+            max-width: 800px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -513,7 +515,7 @@
             border-left: 5px solid var(--primary);
         }
 
-        .hari-jadwal.selasa {
+        .hari-jadwal.has-female {
             border-left-color: var(--female-color);
         }
 
@@ -545,6 +547,27 @@
         .petugas-select-item {
             display: flex;
             align-items: center;
+            gap: 8px;
+        }
+
+        /* Jadwal Configuration */
+        .jadwal-config {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .config-item {
+            display: flex;
+            flex-direction: column;
             gap: 8px;
         }
 
@@ -628,6 +651,10 @@
             .filter-row {
                 flex-direction: column;
             }
+            
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -708,6 +735,46 @@
         </div>
     </div>
 
+    <!-- Jadwal Configuration Modal -->
+    <div id="jadwal-config-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-cog"></i> Konfigurasi Jadwal</h3>
+                <button class="close-modal" onclick="closeJadwalConfigModal()">&times;</button>
+            </div>
+            
+            <div class="jadwal-config">
+                <h4 style="margin-bottom: 15px;">Atur Kebutuhan Petugas per Hari</h4>
+                <p style="margin-bottom: 15px; color: #666;">Atur jumlah petugas laki-laki dan perempuan yang dibutuhkan untuk setiap hari:</p>
+                
+                <div class="config-grid" id="jadwal-config-grid">
+                    <!-- Configuration akan diisi oleh JavaScript -->
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background-color: #f0f7ff; border-radius: 8px;">
+                    <p><strong>Tips:</strong></p>
+                    <ul style="padding-left: 20px; margin-top: 10px;">
+                        <li>Isi 0 jika hari tertentu tidak membutuhkan petugas jenis tertentu</li>
+                        <li>Sistem akan otomatis membatasi pilihan sesuai kebutuhan</li>
+                        <li>Data akan disimpan secara otomatis</li>
+                    </ul>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-success" onclick="saveJadwalConfig()">
+                        <i class="fas fa-save"></i> Simpan Konfigurasi
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetToDefaultConfig()">
+                        <i class="fas fa-redo"></i> Reset ke Default
+                    </button>
+                    <button class="btn btn-primary" onclick="applyConfigToJadwal()">
+                        <i class="fas fa-sync"></i> Terapkan ke Jadwal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Header -->
     <header>
         <div class="container">
@@ -716,14 +783,14 @@
                     <img src="logo_mld.png" alt="Logo MLD" class="logo-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/70x70/1976D2/FFFFFF?text=MLD';">
                     <div class="logo-text">
                         <h1>Sistem Jimpitan MLD</h1>
-                        <p>Pemuda 26 - Iuran Fleksibel</p>
+                        <p>Pemuda 26 - Jadwal Rolling & Iuran Fleksibel</p>
                     </div>
                 </div>
                 <div class="sync-status">
                     <i class="fas fa-database"></i>
                     <div>
                         <div style="font-weight: 600;">Data Local</div>
-                        <div style="font-size: 0.9rem;">Iuran: Fleksibel (Harian/Mingguan/Bulanan)</div>
+                        <div style="font-size: 0.9rem;">Jadwal: Rolling Fleksibel</div>
                     </div>
                 </div>
             </div>
@@ -775,6 +842,20 @@
                             </div>
                         </div>
                         
+                        <!-- Jadwal Minggu Ini -->
+                        <div class="card" style="margin-top: 20px;">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-calendar-week"></i> Jadwal Minggu Ini</h3>
+                                <button class="btn btn-primary btn-sm" onclick="generateRollingJadwal()">
+                                    <i class="fas fa-random"></i> Generate Rolling
+                                </button>
+                            </div>
+                            <div id="jadwal-minggu-ini" style="margin-top: 15px;">
+                                <!-- Jadwal akan diisi oleh JavaScript -->
+                                <p style="text-align: center; color: #999; padding: 20px;">Belum ada jadwal untuk minggu ini</p>
+                            </div>
+                        </div>
+                        
                         <!-- Statistik per Jenis Iuran -->
                         <div class="stats-grid" style="margin-top: 20px;">
                             <div class="stat-card">
@@ -796,13 +877,6 @@
                                 <div class="stat-label">Iuran Custom</div>
                                 <div class="stat-value" id="dash-custom">Rp 0</div>
                                 <div class="stat-label" id="dash-custom-count">0 transaksi</div>
-                            </div>
-                        </div>
-                        
-                        <div class="card" style="margin-top: 20px;">
-                            <h3 class="card-title"><i class="fas fa-chart-line"></i> Pemasukan 7 Hari Terakhir</h3>
-                            <div id="chart-container" style="height: 200px; margin-top: 15px; display: flex; align-items: flex-end; gap: 10px; padding: 20px; border: 1px solid var(--gray); border-radius: 8px;">
-                                <!-- Chart akan diisi oleh JavaScript -->
                             </div>
                         </div>
                     </div>
@@ -876,6 +950,7 @@
                                         <th>Jenis Kelamin</th>
                                         <th>Alamat</th>
                                         <th>Telepon</th>
+                                        <th>Shift Terakhir</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -889,28 +964,53 @@
                     <!-- Tab 4: Atur Jadwal -->
                     <div id="atur-jadwal" class="tab-content">
                         <div class="card-header">
-                            <h2 class="card-title"><i class="fas fa-calendar-alt"></i> Atur Jadwal Petugas Manual</h2>
+                            <h2 class="card-title"><i class="fas fa-calendar-alt"></i> Atur Jadwal Petugas</h2>
                             <div>
+                                <button class="btn btn-primary" onclick="openJadwalConfigModal()">
+                                    <i class="fas fa-cog"></i> Konfigurasi
+                                </button>
                                 <button class="btn btn-success" id="simpan-jadwal">
                                     <i class="fas fa-save"></i> Simpan Jadwal
-                                </button>
-                                <button class="btn btn-primary" onclick="exportJadwalCSV()">
-                                    <i class="fas fa-file-csv"></i> Export CSV
                                 </button>
                             </div>
                         </div>
                         
-                        <div class="jadwal-manual-container" id="jadwal-manual-container">
-                            <!-- Jadwal manual akan diisi oleh JavaScript -->
+                        <!-- Konfigurasi Jadwal -->
+                        <div class="jadwal-config">
+                            <h3 style="margin-bottom: 15px;"><i class="fas fa-sliders-h"></i> Konfigurasi Kebutuhan Petugas</h3>
+                            <div id="current-config-display" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 15px;">
+                                <!-- Konfigurasi saat ini akan ditampilkan di sini -->
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+                                <i class="fas fa-info-circle"></i> Klik tombol "Konfigurasi" di atas untuk mengubah kebutuhan petugas per hari.
+                            </p>
                         </div>
                         
+                        <!-- Fitur Otomatis -->
                         <div class="card" style="margin-top: 20px;">
-                            <h3 class="card-title"><i class="fas fa-info-circle"></i> Aturan Jadwal</h3>
-                            <ul style="padding-left: 20px; margin-top: 10px;">
-                                <li><strong>Senin, Rabu, Kamis, Jumat, Sabtu, Minggu:</strong> Pilih 3 petugas laki-laki</li>
-                                <li><strong>Selasa:</strong> Pilih 7 petugas perempuan (hanya perempuan)</li>
-                                <li>Iuran per KK: <strong>Fleksibel (Harian/Mingguan/Bulanan)</strong></li>
-                            </ul>
+                            <h3 class="card-title"><i class="fas fa-robot"></i> Fitur Otomatis</h3>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                                <button class="btn btn-primary" onclick="generateJadwalOtomatis()">
+                                    <i class="fas fa-magic"></i> Generate Otomatis
+                                </button>
+                                <button class="btn btn-secondary" onclick="clearAllJadwal()">
+                                    <i class="fas fa-trash"></i> Clear Semua
+                                </button>
+                                <button class="btn btn-success" onclick="exportJadwalCSV()">
+                                    <i class="fas fa-file-csv"></i> Export CSV
+                                </button>
+                                <button class="btn btn-warning" onclick="checkJadwalConflicts()">
+                                    <i class="fas fa-exclamation-triangle"></i> Cek Konflik
+                                </button>
+                            </div>
+                            <p style="margin-top: 15px; color: #666; font-size: 0.9rem;">
+                                <i class="fas fa-lightbulb"></i> <strong>Tips:</strong> Gunakan "Generate Otomatis" untuk membuat jadwal rolling otomatis berdasarkan petugas yang tersedia.
+                            </p>
+                        </div>
+                        
+                        <!-- Jadwal Manual -->
+                        <div class="jadwal-manual-container" id="jadwal-manual-container" style="margin-top: 20px;">
+                            <!-- Jadwal manual akan diisi oleh JavaScript -->
                         </div>
                     </div>
 
@@ -1256,12 +1356,12 @@
                     </div>
                 </div>
 
-                <!-- Pemasukan Terbaru -->
+                <!-- Jadwal Hari Ini -->
                 <div class="card">
-                    <h2 class="card-title"><i class="fas fa-history"></i> Pemasukan Terbaru</h2>
-                    <div id="pemasukan-terbaru-list" style="margin-top: 15px;">
-                        <!-- Data akan diisi oleh JavaScript -->
-                        <p style="text-align: center; color: #999; padding: 20px;">Belum ada pemasukan</p>
+                    <h2 class="card-title"><i class="fas fa-calendar-day"></i> Jadwal Hari Ini</h2>
+                    <div id="jadwal-hari-ini" style="margin-top: 15px;">
+                        <!-- Jadwal akan diisi oleh JavaScript -->
+                        <p style="text-align: center; color: #999; padding: 20px;">Belum ada jadwal untuk hari ini</p>
                     </div>
                 </div>
 
@@ -1284,9 +1384,9 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>&copy; 2025 Sistem Jimpitan MLD - Pemuda 26 (Iuran Fleksibel)</p>
+            <p>&copy; 2025 Sistem Jimpitan MLD - Pemuda 26 (Jadwal Rolling & Iuran Fleksibel)</p>
             <p style="margin-top: 10px; font-size: 0.9rem;">
-                <i class="fas fa-file-csv"></i> v2.0 - Support Harian/Mingguan/Bulanan
+                <i class="fas fa-file-csv"></i> v3.0 - Support Rolling Jadwal & Iuran Fleksibel
             </p>
         </div>
     </footer>
@@ -1296,13 +1396,27 @@
         let petugasData = JSON.parse(localStorage.getItem('petugas_jimpitan')) || [];
         let pemasukanData = JSON.parse(localStorage.getItem('pemasukan_jimpitan')) || [];
         let jadwalData = JSON.parse(localStorage.getItem('jadwal_petugas')) || {};
+        let jadwalConfig = JSON.parse(localStorage.getItem('jadwal_config')) || {};
+        let shiftHistory = JSON.parse(localStorage.getItem('shift_history')) || {};
         
         // Hari dalam seminggu
         const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
         
+        // Default configuration untuk jadwal
+        const defaultJadwalConfig = {
+            Senin: { laki: 3, perempuan: 0 },
+            Selasa: { laki: 0, perempuan: 7 },
+            Rabu: { laki: 3, perempuan: 0 },
+            Kamis: { laki: 3, perempuan: 0 },
+            Jumat: { laki: 3, perempuan: 0 },
+            Sabtu: { laki: 3, perempuan: 0 },
+            Minggu: { laki: 3, perempuan: 0 }
+        };
+        
         // Inisialisasi saat halaman dimuat
         document.addEventListener('DOMContentLoaded', function() {
             migrateOldData(); // Migrasi data lama ke format baru
+            initJadwalConfig(); // Inisialisasi konfigurasi jadwal
             initForm();
             initTabs();
             initFilterButtons();
@@ -1315,9 +1429,10 @@
             renderRiwayatPemasukan();
             updateStatistik();
             renderPetugasTerbaru();
-            renderPemasukanTerbaru();
+            renderJadwalHariIni();
+            renderJadwalMingguIni();
             updateDashboard();
-            updateChart();
+            updateCurrentConfigDisplay();
             
             // Set default date untuk input pemasukan
             const today = new Date().toISOString().split('T')[0];
@@ -1349,7 +1464,22 @@
                 
                 localStorage.setItem('pemasukan_jimpitan', JSON.stringify(migratedData));
                 pemasukanData = migratedData;
-                console.log('Data berhasil dimigrasi ke format baru!');
+                console.log('Data pemasukan berhasil dimigrasi ke format baru!');
+            }
+            
+            // Migrasi konfigurasi jadwal jika belum ada
+            if (Object.keys(jadwalConfig).length === 0) {
+                jadwalConfig = defaultJadwalConfig;
+                localStorage.setItem('jadwal_config', JSON.stringify(jadwalConfig));
+                console.log('Konfigurasi jadwal diinisialisasi ke default!');
+            }
+        }
+        
+        // Inisialisasi konfigurasi jadwal
+        function initJadwalConfig() {
+            if (Object.keys(jadwalConfig).length === 0) {
+                jadwalConfig = defaultJadwalConfig;
+                localStorage.setItem('jadwal_config', JSON.stringify(jadwalConfig));
             }
         }
         
@@ -1397,7 +1527,9 @@
                     jenisKelamin: jenisKelamin,
                     alamat: alamat,
                     telepon: telepon,
-                    tanggalDaftar: new Date().toISOString().split('T')[0]
+                    tanggalDaftar: new Date().toISOString().split('T')[0],
+                    shiftCount: 0,
+                    lastShift: null
                 };
                 
                 petugasData.push(petugasBaru);
@@ -1414,6 +1546,7 @@
                 updateStatistik();
                 renderPetugasTerbaru();
                 updateDashboard();
+                updateCurrentConfigDisplay();
                 
                 alert(`Petugas "${nama}" berhasil disimpan!`);
             });
@@ -1440,6 +1573,11 @@
                     // Jika tab laporan, update laporan
                     if (tabId === 'laporan') {
                         renderLaporan();
+                    }
+                    
+                    // Jika tab jadwal, update jadwal
+                    if (tabId === 'atur-jadwal') {
+                        updateCurrentConfigDisplay();
                     }
                 });
             });
@@ -1474,7 +1612,7 @@
             if (petugasFiltered.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 30px;">
+                        <td colspan="7" style="text-align: center; padding: 30px;">
                             <i class="fas fa-users-slash" style="font-size: 2rem; color: #ccc; margin-bottom: 10px; display: block;"></i>
                             <p>Tidak ada petugas yang ditemukan</p>
                         </td>
@@ -1485,6 +1623,9 @@
             
             // Render tabel
             petugasFiltered.forEach((p, index) => {
+                const shiftCount = p.shiftCount || 0;
+                const lastShift = p.lastShift ? formatTanggal(p.lastShift) : 'Belum pernah';
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${index + 1}</td>
@@ -1492,6 +1633,7 @@
                     <td><span class="badge ${p.jenisKelamin === 'Laki-laki' ? 'badge-male' : 'badge-female'}">${p.jenisKelamin}</span></td>
                     <td>${p.alamat}</td>
                     <td>${p.telepon}</td>
+                    <td>${lastShift} (${shiftCount}x)</td>
                     <td>
                         <button class="btn btn-danger btn-sm" onclick="hapusPetugas(${p.id})">
                             <i class="fas fa-trash"></i> Hapus
@@ -1588,7 +1730,7 @@
                     </div>
                     <div style="flex: 1;">
                         <div style="font-weight: 600;">${p.nama}</div>
-                        <div style="font-size: 0.85rem; color: #666;">${p.alamat}</div>
+                        <div style="font-size: 0.85rem; color: #666;">${p.alamat} • ${p.shiftCount || 0}x shift</div>
                     </div>
                 `;
                 container.appendChild(card);
@@ -1613,36 +1755,65 @@
             
             // Loop untuk setiap hari
             hari.forEach(hariNama => {
-                const isSelasa = hariNama === 'Selasa';
-                const kebutuhan = isSelasa ? 'Pilih 7 petugas perempuan' : 'Pilih 3 petugas laki-laki';
-                const jumlahPilihan = isSelasa ? 7 : 3;
-                const petugasTersedia = isSelasa ? petugasPerempuan : petugasLaki;
+                const config = jadwalConfig[hariNama] || { laki: 3, perempuan: 0 };
+                const totalKebutuhan = config.laki + config.perempuan;
+                const hasFemale = config.perempuan > 0;
+                
+                const kebutuhan = `Pilih ${config.laki} laki-laki, ${config.perempuan} perempuan`;
                 
                 const jadwalItem = document.createElement('div');
-                jadwalItem.className = `hari-jadwal ${isSelasa ? 'selasa' : ''}`;
+                jadwalItem.className = `hari-jadwal ${hasFemale ? 'has-female' : ''}`;
                 
-                // Buat pilihan petugas
-                let selectOptions = '<option value="">Pilih petugas...</option>';
-                petugasTersedia.forEach(p => {
-                    selectOptions += `<option value="${p.id}">${p.nama} (${p.alamat})</option>`;
-                });
-                
-                // Buat dropdown untuk setiap pilihan
-                let selectElements = '';
-                for (let i = 1; i <= jumlahPilihan; i++) {
-                    // Cek apakah sudah ada jadwal yang disimpan
-                    const petugasTerpilih = jadwalData[hariNama] && jadwalData[hariNama][i-1] 
-                        ? jadwalData[hariNama][i-1].id 
-                        : '';
+                // Buat dropdown untuk petugas laki-laki
+                let lakiSelectElements = '';
+                if (config.laki > 0) {
+                    let lakiOptions = '<option value="">Pilih petugas laki-laki...</option>';
+                    petugasLaki.forEach(p => {
+                        lakiOptions += `<option value="${p.id}">${p.nama} (${p.alamat})</option>`;
+                    });
                     
-                    selectElements += `
-                        <div class="petugas-select-item">
-                            <label>Petugas ${i}:</label>
-                            <select class="form-control petugas-select" data-hari="${hariNama}" data-index="${i-1}">
-                                ${selectOptions}
-                            </select>
-                        </div>
-                    `;
+                    for (let i = 1; i <= config.laki; i++) {
+                        // Cek apakah sudah ada jadwal yang disimpan
+                        const savedIndex = i - 1;
+                        const petugasTerpilih = jadwalData[hariNama] && jadwalData[hariNama][savedIndex] 
+                            ? jadwalData[hariNama][savedIndex].id 
+                            : '';
+                        
+                        lakiSelectElements += `
+                            <div class="petugas-select-item">
+                                <label>Laki-laki ${i}:</label>
+                                <select class="form-control petugas-select" data-hari="${hariNama}" data-jenis="laki" data-index="${savedIndex}">
+                                    ${lakiOptions}
+                                </select>
+                            </div>
+                        `;
+                    }
+                }
+                
+                // Buat dropdown untuk petugas perempuan
+                let perempuanSelectElements = '';
+                if (config.perempuan > 0) {
+                    let perempuanOptions = '<option value="">Pilih petugas perempuan...</option>';
+                    petugasPerempuan.forEach(p => {
+                        perempuanOptions += `<option value="${p.id}">${p.nama} (${p.alamat})</option>`;
+                    });
+                    
+                    for (let i = 1; i <= config.perempuan; i++) {
+                        // Cek apakah sudah ada jadwal yang disimpan
+                        const savedIndex = config.laki + (i - 1);
+                        const petugasTerpilih = jadwalData[hariNama] && jadwalData[hariNama][savedIndex] 
+                            ? jadwalData[hariNama][savedIndex].id 
+                            : '';
+                        
+                        perempuanSelectElements += `
+                            <div class="petugas-select-item">
+                                <label>Perempuan ${i}:</label>
+                                <select class="form-control petugas-select" data-hari="${hariNama}" data-jenis="perempuan" data-index="${savedIndex}">
+                                    ${perempuanOptions}
+                                </select>
+                            </div>
+                        `;
+                    }
                 }
                 
                 jadwalItem.innerHTML = `
@@ -1651,7 +1822,8 @@
                         <div class="hari-kebutuhan">${kebutuhan}</div>
                     </div>
                     <div class="petugas-select-container">
-                        ${selectElements}
+                        ${lakiSelectElements}
+                        ${perempuanSelectElements}
                     </div>
                 `;
                 
@@ -1697,6 +1869,9 @@
                                 jenisKelamin: petugasDataItem.jenisKelamin,
                                 alamat: petugasDataItem.alamat
                             });
+                            
+                            // Update shift history untuk petugas
+                            updateShiftHistory(petugasDataItem.id, hariNama);
                         }
                     }
                 });
@@ -1705,7 +1880,58 @@
             // Simpan ke localStorage
             localStorage.setItem('jadwal_petugas', JSON.stringify(jadwalData));
             
+            // Update petugas data dengan shift history
+            updatePetugasShiftData();
+            
             alert('Jadwal berhasil disimpan!');
+            
+            // Update tampilan
+            renderDaftarPetugas();
+            renderJadwalHariIni();
+            renderJadwalMingguIni();
+        }
+        
+        // Update shift history
+        function updateShiftHistory(petugasId, hariNama) {
+            if (!shiftHistory[petugasId]) {
+                shiftHistory[petugasId] = [];
+            }
+            
+            // Tambahkan hari ini ke history jika belum ada
+            const today = new Date().toISOString().split('T')[0];
+            const shiftRecord = {
+                tanggal: today,
+                hari: hariNama
+            };
+            
+            // Cek apakah sudah ada record untuk hari ini
+            const existingIndex = shiftHistory[petugasId].findIndex(
+                record => record.tanggal === today && record.hari === hariNama
+            );
+            
+            if (existingIndex === -1) {
+                shiftHistory[petugasId].push(shiftRecord);
+            }
+            
+            // Simpan ke localStorage
+            localStorage.setItem('shift_history', JSON.stringify(shiftHistory));
+        }
+        
+        // Update petugas data dengan shift history
+        function updatePetugasShiftData() {
+            petugasData.forEach(petugas => {
+                if (shiftHistory[petugas.id]) {
+                    petugas.shiftCount = shiftHistory[petugas.id].length;
+                    
+                    // Ambil shift terakhir
+                    if (shiftHistory[petugas.id].length > 0) {
+                        const lastShift = shiftHistory[petugas.id][shiftHistory[petugas.id].length - 1];
+                        petugas.lastShift = lastShift.tanggal;
+                    }
+                }
+            });
+            
+            localStorage.setItem('petugas_jimpitan', JSON.stringify(petugasData));
         }
         
         // Export jadwal ke CSV
@@ -1715,18 +1941,396 @@
                 return;
             }
             
-            let csvContent = "Hari,Kebutuhan Petugas,Nama,Jenis Kelamin,Alamat\n";
+            let csvContent = "Hari,Kebutuhan Laki-laki,Kebutuhan Perempuan,Nama,Jenis Kelamin,Alamat\n";
             
             hari.forEach(hariNama => {
+                const config = jadwalConfig[hariNama] || { laki: 3, perempuan: 0 };
+                
                 if (jadwalData[hariNama] && jadwalData[hariNama].length > 0) {
                     jadwalData[hariNama].forEach(petugas => {
-                        csvContent += `${hariNama},${hariNama === 'Selasa' ? '7 Perempuan' : '3 Laki-laki'},${petugas.nama},${petugas.jenisKelamin},${petugas.alamat}\n`;
+                        csvContent += `${hariNama},${config.laki},${config.perempuan},${petugas.nama},${petugas.jenisKelamin},${petugas.alamat}\n`;
                     });
+                } else {
+                    csvContent += `${hariNama},${config.laki},${config.perempuan},,,,\n`;
                 }
             });
             
             downloadCSV(csvContent, `jadwal_jimpitan_${getCurrentDateString()}.csv`);
         }
+        
+        // Generate jadwal otomatis
+        function generateJadwalOtomatis() {
+            if (petugasData.length === 0) {
+                alert('Belum ada petugas terdaftar!');
+                return;
+            }
+            
+            // Reset jadwal terlebih dahulu
+            jadwalData = {};
+            
+            // Filter petugas
+            const petugasLaki = petugasData.filter(p => p.jenisKelamin === 'Laki-laki');
+            const petugasPerempuan = petugasData.filter(p => p.jenisKelamin === 'Perempuan');
+            
+            // Sort petugas berdasarkan shift count (yang paling sedikit shift-nya diprioritaskan)
+            const sortedLaki = [...petugasLaki].sort((a, b) => (a.shiftCount || 0) - (b.shiftCount || 0));
+            const sortedPerempuan = [...petugasPerempuan].sort((a, b) => (a.shiftCount || 0) - (b.shiftCount || 0));
+            
+            // Loop untuk setiap hari
+            hari.forEach((hariNama, dayIndex) => {
+                const config = jadwalConfig[hariNama] || { laki: 3, perempuan: 0 };
+                jadwalData[hariNama] = [];
+                
+                // Pilih petugas laki-laki
+                for (let i = 0; i < config.laki; i++) {
+                    if (sortedLaki.length > 0) {
+                        // Pilih petugas dengan round robin
+                        const petugasIndex = (dayIndex * config.laki + i) % sortedLaki.length;
+                        const petugas = sortedLaki[petugasIndex];
+                        
+                        jadwalData[hariNama].push({
+                            id: petugas.id,
+                            nama: petugas.nama,
+                            jenisKelamin: petugas.jenisKelamin,
+                            alamat: petugas.alamat
+                        });
+                    }
+                }
+                
+                // Pilih petugas perempuan
+                for (let i = 0; i < config.perempuan; i++) {
+                    if (sortedPerempuan.length > 0) {
+                        // Pilih petugas dengan round robin
+                        const petugasIndex = (dayIndex * config.perempuan + i) % sortedPerempuan.length;
+                        const petugas = sortedPerempuan[petugasIndex];
+                        
+                        jadwalData[hariNama].push({
+                            id: petugas.id,
+                            nama: petugas.nama,
+                            jenisKelamin: petugas.jenisKelamin,
+                            alamat: petugas.alamat
+                        });
+                    }
+                }
+            });
+            
+            // Simpan ke localStorage
+            localStorage.setItem('jadwal_petugas', JSON.stringify(jadwalData));
+            
+            // Update shift history
+            updateShiftHistoryFromJadwal();
+            
+            // Update tampilan
+            renderJadwalManual();
+            renderDaftarPetugas();
+            renderJadwalHariIni();
+            renderJadwalMingguIni();
+            
+            alert('Jadwal otomatis berhasil digenerate!');
+        }
+        
+        // Update shift history dari jadwal
+        function updateShiftHistoryFromJadwal() {
+            hari.forEach(hariNama => {
+                if (jadwalData[hariNama]) {
+                    jadwalData[hariNama].forEach(petugas => {
+                        updateShiftHistory(petugas.id, hariNama);
+                    });
+                }
+            });
+            
+            updatePetugasShiftData();
+        }
+        
+        // Clear semua jadwal
+        function clearAllJadwal() {
+            if (confirm('Apakah Anda yakin ingin menghapus semua jadwal?')) {
+                jadwalData = {};
+                localStorage.setItem('jadwal_petugas', JSON.stringify(jadwalData));
+                renderJadwalManual();
+                alert('Semua jadwal telah dihapus!');
+            }
+        }
+        
+        // Cek konflik jadwal
+        function checkJadwalConflicts() {
+            const conflicts = [];
+            const petugasHariMap = {};
+            
+            // Cek apakah ada petugas yang double di hari yang sama
+            hari.forEach(hariNama => {
+                if (jadwalData[hariNama]) {
+                    const petugasIds = new Set();
+                    
+                    jadwalData[hariNama].forEach(petugas => {
+                        if (petugasIds.has(petugas.id)) {
+                            conflicts.push(`${petugas.nama} terdaftar 2x di hari ${hariNama}`);
+                        }
+                        petugasIds.add(petugas.id);
+                        
+                        // Catat hari untuk petugas ini
+                        if (!petugasHariMap[petugas.id]) {
+                            petugasHariMap[petugas.id] = [];
+                        }
+                        petugasHariMap[petugas.id].push(hariNama);
+                    });
+                }
+            });
+            
+            // Cek apakah ada petugas yang bertugas setiap hari
+            Object.keys(petugasHariMap).forEach(petugasId => {
+                if (petugasHariMap[petugasId].length >= 5) {
+                    const petugas = petugasData.find(p => p.id == petugasId);
+                    if (petugas) {
+                        conflicts.push(`${petugas.nama} bertugas ${petugasHariMap[petugasId].length} hari dalam seminggu (mungkin terlalu sering)`);
+                    }
+                }
+            });
+            
+            if (conflicts.length === 0) {
+                alert('Tidak ada konflik jadwal yang ditemukan! ✅');
+            } else {
+                alert('Ditemukan konflik jadwal:\n\n' + conflicts.join('\n'));
+            }
+        }
+        
+        // Render jadwal hari ini
+        function renderJadwalHariIni() {
+            const container = document.getElementById('jadwal-hari-ini');
+            const today = new Date();
+            const dayIndex = today.getDay();
+            const hariIni = hari[dayIndex];
+            
+            if (!jadwalData[hariIni] || jadwalData[hariIni].length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">Belum ada jadwal untuk ${hariIni}</p>`;
+                return;
+            }
+            
+            container.innerHTML = '';
+            jadwalData[hariIni].forEach(petugas => {
+                const item = document.createElement('div');
+                item.style.display = 'flex';
+                item.style.alignItems = 'center';
+                item.style.gap = '10px';
+                item.style.padding = '10px';
+                item.style.borderBottom = '1px solid #eee';
+                
+                const iconColor = petugas.jenisKelamin === 'Perempuan' ? 'var(--female-color)' : 'var(--male-color)';
+                
+                item.innerHTML = `
+                    <div style="width: 30px; height: 30px; border-radius: 50%; background-color: ${iconColor}20; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-${petugas.jenisKelamin === 'Perempuan' ? 'female' : 'male'}" style="color: ${iconColor}; font-size: 0.9rem;"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 0.9rem;">${petugas.nama}</div>
+                        <div style="font-size: 0.75rem; color: #666;">${petugas.alamat}</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        // Render jadwal minggu ini
+        function renderJadwalMingguIni() {
+            const container = document.getElementById('jadwal-minggu-ini');
+            container.innerHTML = '';
+            
+            let hasJadwal = false;
+            
+            hari.forEach(hariNama => {
+                if (jadwalData[hariNama] && jadwalData[hariNama].length > 0) {
+                    hasJadwal = true;
+                    
+                    const dayCard = document.createElement('div');
+                    dayCard.style.marginBottom = '10px';
+                    dayCard.style.padding = '12px';
+                    dayCard.style.backgroundColor = '#f9f9f9';
+                    dayCard.style.borderRadius = '8px';
+                    dayCard.style.borderLeft = '4px solid var(--primary)';
+                    
+                    const petugasList = jadwalData[hariNama].map(p => 
+                        `<span style="display: inline-block; padding: 2px 6px; margin: 2px; background-color: ${p.jenisKelamin === 'Perempuan' ? 'rgba(233, 30, 99, 0.1)' : 'rgba(33, 150, 243, 0.1)'}; border-radius: 4px; font-size: 0.8rem;">${p.nama.split(' ')[0]}</span>`
+                    ).join('');
+                    
+                    dayCard.innerHTML = `
+                        <div style="font-weight: 600; color: var(--primary); margin-bottom: 5px;">${hariNama}</div>
+                        <div style="font-size: 0.85rem; color: #666;">${jadwalData[hariNama].length} petugas</div>
+                        <div style="margin-top: 8px;">${petugasList}</div>
+                    `;
+                    
+                    container.appendChild(dayCard);
+                }
+            });
+            
+            if (!hasJadwal) {
+                container.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">Belum ada jadwal untuk minggu ini</p>`;
+            }
+        }
+        
+        // Generate rolling jadwal
+        function generateRollingJadwal() {
+            if (petugasData.length === 0) {
+                alert('Belum ada petugas terdaftar!');
+                return;
+            }
+            
+            // Reset shift history untuk memulai rolling baru
+            if (confirm('Generate jadwal rolling baru? Shift history akan direset untuk distribusi yang merata.')) {
+                shiftHistory = {};
+                localStorage.setItem('shift_history', JSON.stringify(shiftHistory));
+                
+                // Reset shift count di petugas data
+                petugasData.forEach(p => {
+                    p.shiftCount = 0;
+                    p.lastShift = null;
+                });
+                
+                localStorage.setItem('petugas_jimpitan', JSON.stringify(petugasData));
+                
+                // Generate jadwal otomatis
+                generateJadwalOtomatis();
+                
+                alert('Jadwal rolling baru berhasil digenerate dengan distribusi merata!');
+            }
+        }
+        
+        // ============================================
+        // KONFIGURASI JADWAL FUNCTIONS
+        // ============================================
+        
+        // Buka modal konfigurasi jadwal
+        function openJadwalConfigModal() {
+            document.getElementById('jadwal-config-modal').classList.add('active');
+            renderJadwalConfigForm();
+        }
+        
+        // Tutup modal konfigurasi jadwal
+        function closeJadwalConfigModal() {
+            document.getElementById('jadwal-config-modal').classList.remove('active');
+        }
+        
+        // Render form konfigurasi jadwal
+        function renderJadwalConfigForm() {
+            const container = document.getElementById('jadwal-config-grid');
+            container.innerHTML = '';
+            
+            hari.forEach(hariNama => {
+                const config = jadwalConfig[hariNama] || { laki: 3, perempuan: 0 };
+                
+                const configItem = document.createElement('div');
+                configItem.className = 'config-item';
+                
+                configItem.innerHTML = `
+                    <label style="font-weight: 600; color: var(--primary-dark);">${hariNama}</label>
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.85rem; color: #666;">Laki-laki</label>
+                            <input type="number" 
+                                   min="0" 
+                                   max="10" 
+                                   value="${config.laki}" 
+                                   class="form-control config-laki" 
+                                   data-hari="${hariNama}"
+                                   style="padding: 8px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.85rem; color: #666;">Perempuan</label>
+                            <input type="number" 
+                                   min="0" 
+                                   max="10" 
+                                   value="${config.perempuan}" 
+                                   class="form-control config-perempuan" 
+                                   data-hari="${hariNama}"
+                                   style="padding: 8px;">
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(configItem);
+            });
+        }
+        
+        // Simpan konfigurasi jadwal
+        function saveJadwalConfig() {
+            const lakiInputs = document.querySelectorAll('.config-laki');
+            const perempuanInputs = document.querySelectorAll('.config-perempuan');
+            
+            lakiInputs.forEach(input => {
+                const hariNama = input.getAttribute('data-hari');
+                jadwalConfig[hariNama] = jadwalConfig[hariNama] || {};
+                jadwalConfig[hariNama].laki = parseInt(input.value) || 0;
+            });
+            
+            perempuanInputs.forEach(input => {
+                const hariNama = input.getAttribute('data-hari');
+                jadwalConfig[hariNama] = jadwalConfig[hariNama] || {};
+                jadwalConfig[hariNama].perempuan = parseInt(input.value) || 0;
+            });
+            
+            localStorage.setItem('jadwal_config', JSON.stringify(jadwalConfig));
+            updateCurrentConfigDisplay();
+            renderJadwalManual();
+            
+            closeJadwalConfigModal();
+            alert('Konfigurasi jadwal berhasil disimpan!');
+        }
+        
+        // Reset ke konfigurasi default
+        function resetToDefaultConfig() {
+            if (confirm('Reset ke konfigurasi default?')) {
+                jadwalConfig = JSON.parse(JSON.stringify(defaultJadwalConfig));
+                localStorage.setItem('jadwal_config', JSON.stringify(jadwalConfig));
+                renderJadwalConfigForm();
+                updateCurrentConfigDisplay();
+                renderJadwalManual();
+                alert('Konfigurasi direset ke default!');
+            }
+        }
+        
+        // Terapkan konfigurasi ke jadwal
+        function applyConfigToJadwal() {
+            // Periksa apakah ada perubahan
+            saveJadwalConfig();
+            
+            // Clear jadwal yang ada jika konfigurasi berubah
+            if (confirm('Terapkan konfigurasi ke jadwal? Jadwal yang ada akan direset.')) {
+                clearAllJadwal();
+                renderJadwalManual();
+            }
+        }
+        
+        // Update tampilan konfigurasi saat ini
+        function updateCurrentConfigDisplay() {
+            const container = document.getElementById('current-config-display');
+            container.innerHTML = '';
+            
+            hari.forEach(hariNama => {
+                const config = jadwalConfig[hariNama] || { laki: 3, perempuan: 0 };
+                
+                const configDisplay = document.createElement('div');
+                configDisplay.style.padding = '10px';
+                configDisplay.style.backgroundColor = '#f9f9f9';
+                configDisplay.style.borderRadius = '6px';
+                configDisplay.style.textAlign = 'center';
+                
+                const hasFemale = config.perempuan > 0;
+                configDisplay.style.borderLeft = hasFemale ? '3px solid var(--female-color)' : '3px solid var(--male-color)';
+                
+                configDisplay.innerHTML = `
+                    <div style="font-weight: 600; font-size: 0.9rem;">${hariNama}</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">
+                        <i class="fas fa-male" style="color: var(--male-color);"></i> ${config.laki} 
+                        <i class="fas fa-female" style="color: var(--female-color); margin-left: 10px;"></i> ${config.perempuan}
+                    </div>
+                `;
+                
+                container.appendChild(configDisplay);
+            });
+        }
+        
+        // ============================================
+        // FUNGSI PEMASUKAN (SAMA DENGAN SEBELUMNYA)
+        // ============================================
         
         // Inisialisasi form pemasukan
         function initPemasukanForm() {
@@ -1804,7 +2408,6 @@
                 renderPemasukanTerbaru();
                 updateStatistik();
                 updateDashboard();
-                updateChart();
                 
                 alert(`Pemasukan ${getJenisIuranNama(jenisIuran)} sebesar ${formatRupiah(total)} berhasil disimpan!`);
             });
@@ -1921,62 +2524,15 @@
             }
         }
         
-        // Render pemasukan terbaru
-        function renderPemasukanTerbaru() {
-            const container = document.getElementById('pemasukan-terbaru-list');
-            
-            if (pemasukanData.length === 0) {
-                container.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">Belum ada pemasukan</p>`;
-                return;
-            }
-            
-            // Ambil 3 pemasukan terbaru
-            const pemasukanTerbaru = [...pemasukanData]
-                .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal))
-                .slice(0, 3);
-            
-            container.innerHTML = '';
-            pemasukanTerbaru.forEach(p => {
-                const item = document.createElement('div');
-                item.style.padding = '12px';
-                item.style.borderBottom = '1px solid #eee';
-                item.style.display = 'flex';
-                item.style.justifyContent = 'space-between';
-                item.style.alignItems = 'center';
-                
-                const jenisColor = getColorForIuran(p.jenisIuran);
-                
-                item.innerHTML = `
-                    <div>
-                        <div style="font-weight: 600; color: ${jenisColor};">${p.hari} (${getJenisIuranNama(p.jenisIuran)})</div>
-                        <div style="font-size: 0.85rem; color: #666;">${formatTanggal(p.tanggal)}</div>
-                        <div style="font-size: 0.85rem; color: #666;">${p.keterangan}</div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-weight: 700; color: ${jenisColor};">${formatRupiah(p.total)}</div>
-                        <div style="font-size: 0.85rem; color: #666;">${p.jumlahRumah} rumah</div>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
-        }
-        
-        // Helper untuk warna berdasarkan jenis iuran
-        function getColorForIuran(jenisIuran) {
-            switch(jenisIuran) {
-                case 'harian': return 'var(--success)';
-                case 'mingguan': return 'var(--weekly-color)';
-                case 'bulanan': return 'var(--monthly-color)';
-                case 'custom': return 'var(--warning)';
-                default: return 'var(--success)';
-            }
-        }
-        
         // Format tanggal pendek
         function formatTanggal(tanggalString) {
             const tanggal = new Date(tanggalString);
             return tanggal.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
         }
+        
+        // ============================================
+        // FUNGSI LAPORAN (SAMA DENGAN SEBELUMNYA)
+        // ============================================
         
         // Inisialisasi laporan
         function initLaporan() {
@@ -2197,63 +2753,17 @@
             return statistik;
         }
         
-        // Update chart
-        function updateChart() {
-            const container = document.getElementById('chart-container');
-            container.innerHTML = '';
-            
-            // Ambil data 7 hari terakhir
-            const today = new Date();
-            const last7Days = [];
-            
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date(today);
-                date.setDate(date.getDate() - i);
-                last7Days.push(date.toISOString().split('T')[0]);
-            }
-            
-            // Cari pemasukan untuk setiap hari
-            const dataChart = last7Days.map(date => {
-                const pemasukanHari = pemasukanData.filter(p => p.tanggal === date);
-                const totalHari = pemasukanHari.reduce((sum, p) => sum + p.total, 0);
-                return {
-                    date: date,
-                    total: totalHari,
-                    day: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'][new Date(date).getDay()]
-                };
-            });
-            
-            // Cari nilai maksimum untuk skala
-            const maxValue = Math.max(...dataChart.map(d => d.total), 18500);
-            
-            // Render chart bars
-            dataChart.forEach(data => {
-                const barHeight = (data.total / maxValue) * 150;
-                const bar = document.createElement('div');
-                bar.style.display = 'flex';
-                bar.style.flexDirection = 'column';
-                bar.style.alignItems = 'center';
-                bar.style.flex = 1;
-                
-                bar.innerHTML = `
-                    <div style="width: 30px; height: ${barHeight}px; background-color: ${data.total > 0 ? 'var(--success)' : '#e0e0e0'}; border-radius: 5px 5px 0 0;"></div>
-                    <div style="margin-top: 5px; font-size: 0.8rem; font-weight: 600;">${data.day}</div>
-                    <div style="margin-top: 3px; font-size: 0.7rem; color: #666;">${formatRupiah(data.total).replace('Rp', '').trim()}</div>
-                `;
-                
-                container.appendChild(bar);
-            });
-        }
-        
         // Refresh dashboard
         function refreshDashboard() {
             updateDashboard();
-            updateChart();
+            renderJadwalHariIni();
+            renderJadwalMingguIni();
+            updateCurrentConfigDisplay();
             alert('Dashboard diperbarui!');
         }
         
         // ============================================
-        // FUNGSI BACKUP & SINKRONISASI
+        // FUNGSI BACKUP & SINKRONISASI (SAMA)
         // ============================================
         
         // Modal functions
@@ -2285,7 +2795,7 @@
         function exportPetugas() {
             const exportData = {
                 type: 'petugas',
-                version: '2.0',
+                version: '3.0',
                 exportedAt: new Date().toISOString(),
                 data: petugasData
             };
@@ -2296,9 +2806,10 @@
         function exportJadwal() {
             const exportData = {
                 type: 'jadwal',
-                version: '2.0',
+                version: '3.0',
                 exportedAt: new Date().toISOString(),
-                data: jadwalData
+                data: jadwalData,
+                config: jadwalConfig
             };
             
             downloadJSON(exportData, `jadwal_jimpitan_${getCurrentDateString()}.json`);
@@ -2307,7 +2818,7 @@
         function exportPemasukan() {
             const exportData = {
                 type: 'pemasukan',
-                version: '2.0',
+                version: '3.0',
                 exportedAt: new Date().toISOString(),
                 data: pemasukanData
             };
@@ -2318,11 +2829,13 @@
         function exportAllData() {
             const exportData = {
                 type: 'all',
-                version: '2.0',
+                version: '3.0',
                 exportedAt: new Date().toISOString(),
                 petugas: petugasData,
                 jadwal: jadwalData,
-                pemasukan: pemasukanData
+                pemasukan: pemasukanData,
+                config: jadwalConfig,
+                shiftHistory: shiftHistory
             };
             
             downloadJSON(exportData, `backup_jimpitan_${getCurrentDateString()}.json`);
@@ -2383,7 +2896,9 @@
                         
                     case 'jadwal':
                         jadwalData = data.data || data;
+                        jadwalConfig = data.config || jadwalConfig;
                         localStorage.setItem('jadwal_petugas', JSON.stringify(jadwalData));
+                        localStorage.setItem('jadwal_config', JSON.stringify(jadwalConfig));
                         break;
                         
                     case 'pemasukan':
@@ -2396,9 +2911,14 @@
                             petugasData = data.petugas;
                             jadwalData = data.jadwal;
                             pemasukanData = data.pemasukan;
+                            jadwalConfig = data.config || jadwalConfig;
+                            shiftHistory = data.shiftHistory || shiftHistory;
+                            
                             localStorage.setItem('petugas_jimpitan', JSON.stringify(petugasData));
                             localStorage.setItem('jadwal_petugas', JSON.stringify(jadwalData));
                             localStorage.setItem('pemasukan_jimpitan', JSON.stringify(pemasukanData));
+                            localStorage.setItem('jadwal_config', JSON.stringify(jadwalConfig));
+                            localStorage.setItem('shift_history', JSON.stringify(shiftHistory));
                         }
                         break;
                 }
@@ -2410,8 +2930,10 @@
                 updateStatistik();
                 renderPetugasTerbaru();
                 renderPemasukanTerbaru();
+                renderJadwalHariIni();
+                renderJadwalMingguIni();
                 updateDashboard();
-                updateChart();
+                updateCurrentConfigDisplay();
                 
                 // Close modal
                 closeModal();
@@ -2469,10 +2991,10 @@
                 return;
             }
             
-            let csvContent = "No,Nama,Jenis Kelamin,Alamat,Telepon,Tanggal Daftar\n";
+            let csvContent = "No,Nama,Jenis Kelamin,Alamat,Telepon,Tanggal Daftar,Jumlah Shift,Shift Terakhir\n";
             
             petugasData.forEach((p, index) => {
-                csvContent += `${index + 1},${p.nama},${p.jenisKelamin},${p.alamat},${p.telepon},${p.tanggalDaftar}\n`;
+                csvContent += `${index + 1},${p.nama},${p.jenisKelamin},${p.alamat},${p.telepon},${p.tanggalDaftar},${p.shiftCount || 0},${p.lastShift || ''}\n`;
             });
             
             downloadCSV(csvContent, `petugas_jimpitan_${getCurrentDateString()}.csv`);
@@ -2500,7 +3022,7 @@
         function exportPetugasJSON() {
             const exportData = {
                 type: 'petugas',
-                version: '2.0',
+                version: '3.0',
                 exportedAt: new Date().toISOString(),
                 data: petugasData
             };
@@ -2511,9 +3033,10 @@
         function exportJadwalJSON() {
             const exportData = {
                 type: 'jadwal',
-                version: '2.0',
+                version: '3.0',
                 exportedAt: new Date().toISOString(),
-                data: jadwalData
+                data: jadwalData,
+                config: jadwalConfig
             };
             
             downloadJSON(exportData, `jadwal_jimpitan_${getCurrentDateString()}.json`);
@@ -2522,7 +3045,7 @@
         function exportPemasukanJSON() {
             const exportData = {
                 type: 'pemasukan',
-                version: '2.0',
+                version: '3.0',
                 exportedAt: new Date().toISOString(),
                 data: pemasukanData
             };
@@ -2533,11 +3056,13 @@
         function exportAllJSON() {
             const exportData = {
                 type: 'all',
-                version: '2.0',
+                version: '3.0',
                 exportedAt: new Date().toISOString(),
                 petugas: petugasData,
                 jadwal: jadwalData,
                 pemasukan: pemasukanData,
+                config: jadwalConfig,
+                shiftHistory: shiftHistory,
                 metadata: {
                     totalPetugas: petugasData.length,
                     totalPemasukan: pemasukanData.reduce((sum, p) => sum + p.total, 0),
@@ -2584,8 +3109,13 @@
         // Close modal ketika klik di luar
         window.onclick = function(event) {
             const modal = document.getElementById('sync-modal');
+            const configModal = document.getElementById('jadwal-config-modal');
+            
             if (event.target === modal) {
                 closeModal();
+            }
+            if (event.target === configModal) {
+                closeJadwalConfigModal();
             }
         };
     </script>
